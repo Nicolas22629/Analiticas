@@ -1,1 +1,420 @@
-https://htmlpreview.github.io/?https://gist.githubusercontent.com/anon/raw/dashboard.html
+<!DOCTYPE html>
+<html lang="es-419">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero de Control de Analíticas de Redes Sociales</title>
+    <style>
+        /* 1. DISEÑO GLOBAL Y FONDO (LAYOUT) */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at top left, #fbcfe8 0%, #ffffff 50%, #fef08a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #334155;
+        }
+
+        .dashboard-container {
+            width: 100%;
+            max-width: 1200px;
+            background: transparent;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* PALETA DE COLORES CORPORATIVOS (VARIABLES) */
+        :root {
+            --color-magenta: #be185d;
+            --color-azul-francia: #1d4ed8;
+            --color-azul-petroleo: #0369a1;
+            --color-violeta: #6d28d9;
+            --color-negro: #000000;
+            --color-rojo-decremento: #dc2626;
+        }
+
+        /* 2. FRANJA SUPERIOR: CONTROL Y FILTRADO */
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .logo-container {
+            background-color: rgba(251, 207, 232, 0.4);
+            padding: 8px 24px;
+            border-radius: 50px;
+            font-weight: bold;
+            color: var(--color-violeta);
+            font-size: 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .filters-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .select-filter {
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #475569;
+            cursor: pointer;
+            outline: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        /* 3. BLOQUE CENTRAL: TARJETAS DE KPIs */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .kpi-card {
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .kpi-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .kpi-tag {
+            align-self: flex-start;
+            background-color: #ede9fe;
+            color: var(--color-violeta);
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 4px 12px;
+            border-radius: 50px;
+        }
+
+        .kpi-label {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .kpi-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .kpi-trend {
+            font-size: 0.8rem;
+            color: var(--color-rojo-decremento);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Gráficos de dona dinámicos mediante estilos en línea */
+        .donut-chart {
+            width: 70px;
+            height: 70px;
+            border-radius: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .donut-chart::after {
+            content: '';
+            width: 46px;
+            height: 46px;
+            background-color: #ffffff;
+            border-radius: 50px;
+            position: absolute;
+        }
+
+        /* 4. BLOQUE INFERIOR: MATRIZ DE RENDIMIENTO */
+        .table-section {
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            overflow-x: auto;
+        }
+
+        .performance-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .performance-table th {
+            background-color: #ffffff;
+            color: #1e293b;
+            font-weight: 700;
+            padding: 14px 16px;
+            border-bottom: 2px solid #f1f5f9;
+            white-space: nowrap;
+        }
+
+        .performance-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+        }
+
+        .badge-platform {
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+            display: inline-block;
+            min-width: 140px;
+        }
+
+        /* Clases de colores asignadas dinámicamente */
+        .bg-instagram { background-color: var(--color-magenta); }
+        .bg-linkedin { background-color: var(--color-azul-petroleo); }
+        .bg-facebook { background-color: var(--color-azul-francia); }
+        .bg-tiktok { background-color: var(--color-negro); }
+
+        .row-grand-total {
+            font-weight: 700;
+            background-color: #ffffff;
+        }
+
+        .row-grand-total td {
+            border-top: 2px solid #e2e8f0;
+            border-bottom: none;
+            padding-top: 18px;
+            color: #0f172a;
+        }
+
+        .pagination-container {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .pagination-nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-nav {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: not-allowed;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <!-- 2. FRANJA SUPERIOR: CONTROL Y FILTRADO -->
+        <header class="header-controls">
+            <div class="logo-container" id="logo-text">Cargando...</div>
+            <div class="filters-group">
+                <select class="select-filter" id="filter-datasource">
+                    <option>Cargando origen...</option>
+                </select>
+                <select class="select-filter" id="filter-account">
+                    <option>Cargando cuenta...</option>
+                </select>
+                <select class="select-filter" id="filter-date">
+                    <option>Cargando período...</option>
+                </select>
+            </div>
+        </header>
+
+        <!-- 3. BLOQUE CENTRAL: CONTENEDOR DE KPIs ASINCRÓNICOS -->
+        <section class="kpi-grid" id="kpi-container">
+            <!-- Los módulos de KPIs se inyectarán de manera dinámica aquí mediante JavaScript -->
+        </section>
+
+        <!-- 4. BLOQUE INFERIOR: MATRIZ DE RENDIMIENTO ASINCRÓNICA -->
+        <section class="table-section">
+            <table class="performance-table">
+                <thead>
+                    <tr>
+                        <th>Origen de datos combinado</th>
+                        <th>Seguidores totales de la página</th>
+                        <th>Nuevos seguidores de la página</th>
+                        <th>Publicaciones compartidas</th>
+                        <th>Impresiones de publicaciones</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <!-- Las filas y el total general se inyectarán dinámicamente aquí -->
+                </tbody>
+            </table>
+            
+            <div class="pagination-container">
+                <span id="pagination-info">0-0 / 0</span>
+                <div class="pagination-nav">
+                    <button class="btn-nav">&lt;</button>
+                    <button class="btn-nav">&gt;</button>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- 5. ARQUITECTURA DE DATOS (MÓDULO JAVASCRIPT) -->
+    <script>
+        // Simulamos la estructura de la Fuente de Datos Externa (Google Sheets / Excel / JSON API)
+        const fuenteDeDatosExterna = {
+            "configuracion": {
+                "logo": "Su logotipo",
+                "filtros": {
+                    "fuente": "Origen de datos combinado",
+                    "cuenta": "Nombre de la cuenta combinada",
+                    "periodo": "1 de ene. de 2024 - 31 de dic. de 2024"
+                }
+            },
+            "kpis": [
+                {
+                    "categoria": "Seguidores",
+                    "etiqueta": "Seguidores totales",
+                    "valor": "42.6K",
+                    "tendencia": "-2.7%",
+                    "gradiente_cono": "conic-gradient(var(--color-magenta) 0% 80%, var(--color-azul-francia) 80% 98%, var(--color-azul-petroleo) 98% 100%)"
+                },
+                {
+                    "categoria": "Seguidores",
+                    "etiqueta": "Nuevos seguidores",
+                    "valor": "5K",
+                    "tendencia": "-45.4%",
+                    "gradiente_cono": "conic-gradient(var(--color-azul-francia) 0% 18%, var(--color-magenta) 18% 100%)"
+                },
+                {
+                    "categoria": "Interacción",
+                    "etiqueta": "Reacciones",
+                    "valor": "52K",
+                    "tendencia": "-8.0%",
+                    "gradiente_cono": "conic-gradient(var(--color-magenta) 0% 55%, var(--color-violeta) 55% 100%)"
+                },
+                {
+                    "categoria": "Visibilidad",
+                    "etiqueta": "Impresiones",
+                    "valor": "846K",
+                    "tendencia": "-37.0%",
+                    "gradiente_cono": "conic-gradient(var(--color-magenta) 0% 85%, var(--color-violeta) 85% 99%, var(--color-azul-francia) 99% 100%)"
+                }
+            ],
+            "rendimiento_plataformas": [
+                { "nombre": "Instagram Insights", "clase_estilo": "bg-instagram", "totales": "33.9K", "nuevos": "767", "compartidos": "270", "impresiones": "108K" },
+                { "nombre": "LinkedIn Pages", "clase_estilo": "bg-linkedin", "totales": "7.6K", "nuevos": "1.1K", "compartidos": "3", "impresiones": "11.4K" },
+                { "nombre": "Facebook Insights", "clase_estilo": "bg-facebook", "totales": "1.1K", "nuevos": "4", "compartidos": "0", "impresiones": "735" },
+                { "nombre": "TikTok", "clase_estilo": "bg-tiktok", "totales": "0", "nuevos": "0", "compartidos": "0", "impresiones": "0" }
+            ],
+            "total_general": {
+                "nombre": "Total general",
+                "totales": "42.5K",
+                "nuevos": "1.8K",
+                "compartidos": "273",
+                "impresiones": "120.1K"
+            }
+        };
+
+        // Función encargada de renderizar los elementos en la interfaz basados en la fuente de datos
+        function inicializarDashboard(datos) {
+            
+            // A. Renderizar Encabezado y Filtros
+            document.getElementById('logo-text').innerText = datos.configuracion.logo;
+            document.getElementById('filter-datasource').options[0].text = datos.configuracion.filtros.fuente;
+            document.getElementById('filter-account').options[0].text = datos.configuracion.filtros.cuenta;
+            document.getElementById('filter-date').options[0].text = datos.configuracion.filtros.periodo;
+
+            // B. Renderizar Tarjetas de KPIs de forma dinámica
+            const kpiContainer = document.getElementById('kpi-container');
+            kpiContainer.innerHTML = ''; // Limpiar contenedor
+            
+            datos.kpis.forEach(kpi => {
+                const tarjetaHtml = `
+                    <div class="kpi-card">
+                        <div class="kpi-info">
+                            <span class="kpi-tag">${kpi.categoria}</span>
+                            <span class="kpi-label">${kpi.etiqueta}</span>
+                            <span class="kpi-value">${kpi.valor}</span>
+                            <span class="kpi-trend">▼ ${kpi.tendencia}</span>
+                        </div>
+                        <div class="donut-chart" style="background: ${kpi.gradiente_cono}"></div>
+                    </div>
+                `;
+                kpiContainer.innerHTML += tarjetaHtml;
+            });
+
+            // C. Renderizar Tabla de Rendimiento por Canal
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = ''; // Limpiar filas anteriores
+
+            datos.rendimiento_plataformas.forEach(fila => {
+                const filaHtml = `
+                    <tr>
+                        <td><span class="badge-platform ${fila.clase_estilo}">${fila.nombre}</span></td>
+                        <td>${fila.totales}</td>
+                        <td>${fila.nuevos}</td>
+                        <td>${fila.compartidos}</td>
+                        <td>${fila.impresiones}</td>
+                    </tr>
+                `;
+                tableBody.innerHTML += filaHtml;
+            });
+
+            // D. Inyectar Fila de Totales Generales
+            const total = datos.total_general;
+            const totalHtml = `
+                <tr class="row-grand-total">
+                    <td>${total.nombre}</td>
+                    <td>${total.totales}</td>
+                    <td>${total.nuevos}</td>
+                    <td>${total.compartidos}</td>
+                    <td>${total.impresiones}</td>
+                </tr>
+            `;
+            tableBody.innerHTML += totalHtml;
+
+            // E. Actualizar Metadatos de Paginación
+            const cantidadPlataformas = datos.rendimiento_plataformas.length;
+            document.getElementById('pagination-info').innerText = `1-${cantidadPlataformas} / ${cantidadPlataformas}`;
+        }
+
+        // Ejecutar la renderización automática al cargar el documento
+        document.addEventListener('DOMContentLoaded', () => {
+            inicializarDashboard(fuenteDeDatosExterna);
+        });
+    </script>
+</body>
+</html>

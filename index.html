@@ -34,12 +34,12 @@
 
         /* PALETA DE COLORES CORPORATIVOS (VARIABLES) */
         :root {
-             --color-magenta: #E1306C;      /* Instagram */
-    --color-azul-francia: #1877F2; /* Facebook */
-    --color-azul-petroleo: #0A66C2; /* LinkedIn */
-    --color-violeta: #7C3AED;      /* Morado moderno */
-    --color-negro: #000000;        /* TikTok */
-    --color-rojo-decremento: #EF4444; /* Rojo suave */
+            --color-magenta: #E1306C;      /* Instagram */
+            --color-azul-francia: #1877F2; /* Facebook */
+            --color-azul-petroleo: #0A66C2; /* LinkedIn */
+            --color-violeta: #7C3AED;      /* Morado moderno */
+            --color-negro: #000000;        /* TikTok */
+            --color-rojo-decremento: #EF4444; /* Rojo suave */
         }
 
         /* 2. FRANJA SUPERIOR: CONTROL Y FILTRADO */
@@ -51,15 +51,84 @@
             gap: 16px;
         }
 
+        /* NUEVO: Estilos para el logo con imagen y texto */
         .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             background-color: rgba(251, 207, 232, 0.4);
-            padding: 8px 24px;
+            padding: 8px 20px 8px 16px;
             border-radius: 50px;
-            font-weight: bold;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        .logo-container:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.15);
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: var(--color-violeta);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .logo-text .main {
+            font-size: 1.1rem;
+            font-weight: 700;
             color: var(--color-violeta);
-            font-size: 1.2rem;
+            letter-spacing: -0.3px;
+        }
+
+        .logo-text .sub {
+            font-size: 0.65rem;
+            font-weight: 400;
+            color: #94a3b8;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Alternativa: Logo con imagen (descomentar y comentar el de arriba para usar) */
+        /*
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background-color: rgba(251, 207, 232, 0.4);
+            padding: 8px 20px 8px 16px;
+            border-radius: 50px;
             border: 1px solid rgba(255, 255, 255, 0.6);
         }
+
+        .logo-img {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .logo-text-img {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--color-violeta);
+        }
+        */
 
         .filters-group {
             display: flex;
@@ -244,7 +313,16 @@
         
         <!-- 2. FRANJA SUPERIOR: CONTROL Y FILTRADO -->
         <header class="header-controls">
-            <div class="logo-container" id="logo-text">Cargando...</div>
+            <!-- NUEVO LOGO: Ícono + Texto -->
+            <div class="logo-container">
+                <div class="logo-icon">📊</div>
+                <div class="logo-text">
+                    <span class="main">Analytics Pro</span>
+                    <span class="sub">Dashboard</span>
+                </div>
+            </div>
+            <!-- FIN NUEVO LOGO -->
+
             <div class="filters-group">
                 <select class="select-filter" id="filter-datasource">
                     <option>Cargando origen...</option>
@@ -352,7 +430,7 @@
         function inicializarDashboard(datos) {
             
             // A. Renderizar Encabezado y Filtros
-            document.getElementById('logo-text').innerText = datos.configuracion.logo;
+            // NOTA: El logo ahora es fijo en HTML, ya no se actualiza desde JS
             document.getElementById('filter-datasource').options[0].text = datos.configuracion.filtros.fuente;
             document.getElementById('filter-account').options[0].text = datos.configuracion.filtros.cuenta;
             document.getElementById('filter-date').options[0].text = datos.configuracion.filtros.periodo;

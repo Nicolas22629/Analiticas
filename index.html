@@ -299,27 +299,26 @@
             </div>
 
             <div class="filters-group">
-                <select class="select-filter" id="filter-datasource">
-                    <option>Cargando origen...</option>
-                </select>
-                <select class="select-filter" id="filter-account">
-                    <option>Cargando cuenta...</option>
-                </select>
-               <div class="filters-group">
+    <!-- Filtro 1: Origen de datos -->
     <select class="select-filter" id="filter-datasource">
         <option>Cargando origen...</option>
     </select>
+    
+    <!-- Filtro 2: Cuenta -->
     <select class="select-filter" id="filter-account">
         <option>Cargando cuenta...</option>
     </select>
-    <!-- NUEVO: Selector de fechas con calendario -->
-    <div class="date-range-container">
-        <input type="date" id="fecha-inicio" class="date-input" value="2024-01-01">
-        <span style="color: #94a3b8;">→</span>
-        <input type="date" id="fecha-fin" class="date-input" value="2024-12-31">
-        <button id="aplicar-fechas" class="btn-aplicar-fechas">
-            📅 Aplicar
-        </button>
+    
+    <!-- Filtro 3: Rango de fechas con calendario -->
+    <div class="filter-date-wrapper">
+        <div class="date-range-container">
+            <input type="date" id="fecha-inicio" class="date-input" value="2024-01-01">
+            <span class="date-arrow">→</span>
+            <input type="date" id="fecha-fin" class="date-input" value="2024-12-31">
+            <button id="aplicar-fechas" class="btn-aplicar-fechas">
+                Aplicar
+            </button>
+        </div>
     </div>
 </div>
             </div>

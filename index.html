@@ -72,7 +72,7 @@
         .logo-icon {
             width: 42px;
             height: 42px;
-            border-radius: 12px;
+            border-radius: 50%;
             background: var(--color-violeta);
             display: flex;
             align-items: center;
@@ -203,6 +203,30 @@
             box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
         }
 
+        /* Botón para cargar datos */
+        .btn-cargar-datos {
+            background: #10B981;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 42px;
+            white-space: nowrap;
+        }
+
+        .btn-cargar-datos:hover {
+            background: #059669;
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
         /* 3. BLOQUE CENTRAL: TARJETAS DE KPIs */
         .kpi-grid {
             display: grid;
@@ -264,25 +288,45 @@
             gap: 4px;
         }
 
-        /* Gráficos de dona dinámicos */
+        /* ======================================== */
+        /* GRÁFICOS DE DONA - CORREGIDOS */
+        /* ======================================== */
         .donut-chart {
             width: 70px;
             height: 70px;
-            border-radius: 50px;
+            border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
             position: relative;
             flex-shrink: 0;
+            /* El fondo se aplica desde el estilo en línea con el gradiente */
         }
 
         .donut-chart::after {
             content: '';
             width: 46px;
             height: 46px;
-            background: #ffffff;
-            border-radius: 50px;
+            background-color: #ffffff;
+            border-radius: 50%;
             position: absolute;
+            z-index: 1;
+        }
+
+        /* ======================================== */
+        /* RESPALDO: Gradientes fijos por si falla el JavaScript */
+        /* ======================================== */
+        .donut-followers {
+            background: conic-gradient(var(--color-magenta) 0% 80%, var(--color-azul-francia) 80% 98%, var(--color-azul-petroleo) 98% 100%);
+        }
+        .donut-new-followers {
+            background: conic-gradient(var(--color-azul-francia) 0% 18%, var(--color-magenta) 18% 100%);
+        }
+        .donut-reactions {
+            background: conic-gradient(var(--color-magenta) 0% 55%, var(--color-violeta) 55% 100%);
+        }
+        .donut-impressions {
+            background: conic-gradient(var(--color-magenta) 0% 85%, var(--color-violeta) 85% 99%, var(--color-azul-francia) 99% 100%);
         }
 
         /* 4. BLOQUE INFERIOR: MATRIZ DE RENDIMIENTO */
@@ -494,42 +538,40 @@
         <header class="header-controls">
             <!-- LOGO: Ícono + Texto -->
             <div class="logo-container">
-                <div class="logo-container">
-    <img src="https://wallpapers.com/images/hd/albert-einstein-pictures-3185-x-3120-m1xto7x0i9py34b2.jpg" 
-         alt="Logo de Einstein" 
-         style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-violeta);">
-    <div class="logo-text">
-        <span class="main">Nico Hacker</span>
-           </div>
-</div>
+                <div class="logo-icon">📊</div>
+                <div class="logo-text">
+                    <span class="main">Nico Hacker</span>
+                    <span class="sub">Dashboard</span>
+                </div>
+            </div>
 
-           <div class="filters-group">
-    <!-- Filtro 1: Origen de datos -->
-    <select class="select-filter" id="filter-datasource">
-        <option>Origen de datos combinado</option>
-    </select>
-    
-    <!-- Filtro 2: Cuenta -->
-    <select class="select-filter" id="filter-account">
-        <option>Nombre de la cuenta combinada</option>
-    </select>
-    
-    <!-- Filtro 3: Rango de fechas con calendario -->
-    <div class="filter-date-wrapper">
-        <div class="date-range-container">
-            <input type="date" id="fecha-inicio" class="date-input" value="2024-01-01">
-            <span class="date-arrow">→</span>
-            <input type="date" id="fecha-fin" class="date-input" value="2024-12-31">
-            <button id="aplicar-fechas" class="btn-aplicar-fechas">Aplicar</button>
-        </div>
-    </div>
-    
-    <!-- Botón para cargar archivos - CORRECTAMENTE UBICADO -->
-    <button id="btn-cargar-datos" class="btn-cargar-datos">
-        📂 Cargar Datos
-    </button>
-</div>
-</header>
+            <div class="filters-group">
+                <!-- Filtro 1: Origen de datos -->
+                <select class="select-filter" id="filter-datasource">
+                    <option>Origen de datos combinado</option>
+                </select>
+                
+                <!-- Filtro 2: Cuenta -->
+                <select class="select-filter" id="filter-account">
+                    <option>Nombre de la cuenta combinada</option>
+                </select>
+                
+                <!-- Filtro 3: Rango de fechas con calendario -->
+                <div class="filter-date-wrapper">
+                    <div class="date-range-container">
+                        <input type="date" id="fecha-inicio" class="date-input" value="2024-01-01">
+                        <span class="date-arrow">→</span>
+                        <input type="date" id="fecha-fin" class="date-input" value="2024-12-31">
+                        <button id="aplicar-fechas" class="btn-aplicar-fechas">Aplicar</button>
+                    </div>
+                </div>
+                
+                <!-- Botón para cargar archivos -->
+                <button id="btn-cargar-datos" class="btn-cargar-datos">
+                    📂 Cargar Datos
+                </button>
+            </div>
+        </header>
 
         <!-- 3. BLOQUE CENTRAL: CONTENEDOR DE KPIs -->
         <section class="kpi-grid" id="kpi-container">
@@ -566,7 +608,9 @@
 
     <!-- 5. ARQUITECTURA DE DATOS (MÓDULO JAVASCRIPT) -->
     <script>
-        // Simulamos la estructura de la Fuente de Datos Externa
+        // ============================================
+        // DATOS DE EJEMPLO
+        // ============================================
         const fuenteDeDatosExterna = {
             "configuracion": {
                 "logo": "Su logotipo",
@@ -621,7 +665,9 @@
             }
         };
 
-        // Función encargada de renderizar los elementos en la interfaz basados en la fuente de datos
+        // ============================================
+        // FUNCIÓN PRINCIPAL: INICIALIZAR DASHBOARD
+        // ============================================
         function inicializarDashboard(datos) {
             
             // A. Renderizar Filtros
@@ -629,11 +675,25 @@
             document.getElementById('filter-account').options[0].text = datos.configuracion.filtros.cuenta;
             document.getElementById('filter-date').options[0].text = datos.configuracion.filtros.periodo;
 
-            // B. Renderizar Tarjetas de KPIs de forma dinámica
+            // ============================================
+            // B. RENDERIZAR TARJETAS DE KPIs (CON GRÁFICOS)
+            // ============================================
             const kpiContainer = document.getElementById('kpi-container');
             kpiContainer.innerHTML = '';
             
-            datos.kpis.forEach(kpi => {
+            // Clases de respaldo para cada gráfico
+            const clasesRespaldo = [
+                'donut-followers',
+                'donut-new-followers',
+                'donut-reactions',
+                'donut-impressions'
+            ];
+            
+            datos.kpis.forEach((kpi, index) => {
+                // Usar el gradiente de los datos o un respaldo si no existe
+                const gradiente = kpi.gradiente_cono || '';
+                const claseRespaldo = clasesRespaldo[index] || '';
+                
                 const tarjetaHtml = `
                     <div class="kpi-card">
                         <div class="kpi-info">
@@ -642,7 +702,8 @@
                             <span class="kpi-value">${kpi.valor}</span>
                             <span class="kpi-trend">▼ ${kpi.tendencia}</span>
                         </div>
-                        <div class="donut-chart" style="background: ${kpi.gradiente_cono}"></div>
+                        <!-- IMPORTANTE: El estilo en línea aplica el gradiente -->
+                        <div class="donut-chart ${claseRespaldo}" style="background: ${gradiente};"></div>
                     </div>
                 `;
                 kpiContainer.innerHTML += tarjetaHtml;
@@ -683,7 +744,9 @@
             document.getElementById('pagination-info').innerText = `1-${cantidadPlataformas} / ${cantidadPlataformas}`;
         }
 
-        // Ejecutar la renderización automática al cargar el documento
+        // ============================================
+        // EJECUTAR AL CARGAR LA PÁGINA
+        // ============================================
         document.addEventListener('DOMContentLoaded', () => {
             inicializarDashboard(fuenteDeDatosExterna);
         });

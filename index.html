@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tablero de Control - Nico Hacker</title>
-    <!-- Librería para leer Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         /* ============================================
@@ -159,12 +158,10 @@
             height: 32px;
             transition: background 0.3s;
         }
-
         .btn-aplicar-fechas:hover {
             background: #6d28d9;
         }
 
-        /* Botones de acción */
         .btn-cargar-datos {
             background: #10B981;
             color: white;
@@ -180,7 +177,6 @@
             gap: 6px;
             transition: background 0.3s;
         }
-
         .btn-cargar-datos:hover {
             background: #059669;
         }
@@ -200,11 +196,9 @@
             gap: 6px;
             transition: background 0.3s;
         }
-
         .btn-actualizar-sheets:hover {
             background: #2563EB;
         }
-
         .btn-actualizar-sheets:disabled {
             opacity: 0.5;
             cursor: not-allowed;
@@ -235,7 +229,6 @@
             flex-direction: column;
             gap: 6px;
         }
-
         .kpi-tag {
             align-self: flex-start;
             background-color: #ede9fe;
@@ -245,18 +238,15 @@
             padding: 4px 12px;
             border-radius: 50px;
         }
-
         .kpi-label {
             font-size: 0.9rem;
             color: #64748b;
         }
-
         .kpi-value {
             font-size: 1.8rem;
             font-weight: 700;
             color: #1e293b;
         }
-
         .kpi-trend {
             font-size: 0.8rem;
             color: var(--color-rojo-decremento);
@@ -264,7 +254,7 @@
         }
 
         /* ============================================
-           GRÁFICOS DE DONA - CSS PURO
+           GRÁFICOS DE DONA
            ============================================ */
         .donut-chart {
             width: 70px;
@@ -276,7 +266,6 @@
             position: relative;
             flex-shrink: 0;
         }
-
         .donut-chart::after {
             content: '';
             width: 44px;
@@ -285,19 +274,10 @@
             border-radius: 50%;
             position: absolute;
         }
-
-        .donut-1 {
-            background: conic-gradient(var(--color-magenta) 0% 80%, var(--color-azul-francia) 80% 98%, var(--color-azul-petroleo) 98% 100%);
-        }
-        .donut-2 {
-            background: conic-gradient(var(--color-azul-francia) 0% 18%, var(--color-magenta) 18% 100%);
-        }
-        .donut-3 {
-            background: conic-gradient(var(--color-magenta) 0% 55%, var(--color-violeta) 55% 100%);
-        }
-        .donut-4 {
-            background: conic-gradient(var(--color-magenta) 0% 85%, var(--color-violeta) 85% 99%, var(--color-azul-francia) 99% 100%);
-        }
+        .donut-1 { background: conic-gradient(var(--color-magenta) 0% 80%, var(--color-azul-francia) 80% 98%, var(--color-azul-petroleo) 98% 100%); }
+        .donut-2 { background: conic-gradient(var(--color-azul-francia) 0% 18%, var(--color-magenta) 18% 100%); }
+        .donut-3 { background: conic-gradient(var(--color-magenta) 0% 55%, var(--color-violeta) 55% 100%); }
+        .donut-4 { background: conic-gradient(var(--color-magenta) 0% 85%, var(--color-violeta) 85% 99%, var(--color-azul-francia) 99% 100%); }
 
         /* ============================================
            TABLA
@@ -310,255 +290,59 @@
             border: 1px solid rgba(255, 255, 255, 0.8);
             overflow-x: auto;
         }
-
-        .performance-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 0.9rem;
-        }
-
-        .performance-table th {
-            background-color: #f8fafc;
-            color: #1e293b;
-            font-weight: 700;
-            padding: 14px 16px;
-            border-bottom: 2px solid #e2e8f0;
-        }
-
-        .performance-table td {
-            padding: 12px 16px;
-            border-bottom: 1px solid #f1f5f9;
-            color: #334155;
-        }
-
-        .badge-platform {
-            color: #ffffff;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-weight: 600;
-            display: inline-block;
-            min-width: 140px;
-            text-align: center;
-        }
-
+        .performance-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+        .performance-table th { background-color: #f8fafc; color: #1e293b; font-weight: 700; padding: 14px 16px; border-bottom: 2px solid #e2e8f0; }
+        .performance-table td { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+        .badge-platform { color: #ffffff; padding: 6px 12px; border-radius: 4px; font-weight: 600; display: inline-block; min-width: 140px; text-align: center; }
         .bg-instagram { background-color: var(--color-magenta); }
         .bg-linkedin { background-color: var(--color-azul-petroleo); }
         .bg-facebook { background-color: var(--color-azul-francia); }
         .bg-tiktok { background-color: var(--color-negro); }
-
-        .row-grand-total {
-            font-weight: 700;
-            background-color: #f8fafc;
-        }
-
-        .row-grand-total td {
-            border-top: 2px solid #e2e8f0;
-            padding-top: 18px;
-            color: #0f172a;
-        }
-
-        .pagination-container {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 16px;
-            font-size: 0.85rem;
-            color: #64748b;
-        }
+        .row-grand-total { font-weight: 700; background-color: #f8fafc; }
+        .row-grand-total td { border-top: 2px solid #e2e8f0; padding-top: 18px; color: #0f172a; }
+        .pagination-container { display: flex; justify-content: flex-end; align-items: center; gap: 12px; padding: 10px 16px; font-size: 0.85rem; color: #64748b; }
 
         /* ============================================
            MODAL PARA CARGAR ARCHIVOS
            ============================================ */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .modal-header h2 {
-            color: #1e293b;
-            font-size: 1.4rem;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #94a3b8;
-        }
-
-        .drop-zone {
-            border: 2px dashed #cbd5e1;
-            border-radius: 16px;
-            padding: 40px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
-        }
-
-        .drop-zone:hover {
-            border-color: var(--color-violeta);
-            background: #f8fafc;
-        }
-
-        .drop-zone-icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-        }
-
-        .drop-zone-text {
-            color: #64748b;
-            font-size: 0.95rem;
-        }
-
-        .drop-zone-text strong {
-            color: var(--color-violeta);
-        }
-
-        .file-input-hidden {
-            display: none;
-        }
-
-        .preview-container {
-            display: none;
-            margin: 15px 0;
-        }
-
-        .preview-table-container {
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-        }
-
-        .preview-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.8rem;
-        }
-
-        .preview-table th {
-            background: #f1f5f9;
-            padding: 8px 12px;
-            text-align: left;
-            position: sticky;
-            top: 0;
-        }
-
-        .preview-table td {
-            padding: 6px 12px;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-        }
-
-        .btn-modal-primary {
-            background: var(--color-violeta);
-            color: white;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            flex: 1;
-        }
-
-        .btn-modal-secondary {
-            background: #e2e8f0;
-            color: #475569;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            flex: 1;
-        }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; border-radius: 20px; padding: 30px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h2 { color: #1e293b; font-size: 1.4rem; }
+        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #94a3b8; }
+        .drop-zone { border: 2px dashed #cbd5e1; border-radius: 16px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.3s ease; margin-bottom: 20px; }
+        .drop-zone:hover { border-color: var(--color-violeta); background: #f8fafc; }
+        .drop-zone-icon { font-size: 48px; margin-bottom: 12px; }
+        .drop-zone-text { color: #64748b; font-size: 0.95rem; }
+        .drop-zone-text strong { color: var(--color-violeta); }
+        .file-input-hidden { display: none; }
+        .preview-container { display: none; margin: 15px 0; }
+        .preview-table-container { max-height: 200px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; }
+        .preview-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        .preview-table th { background: #f1f5f9; padding: 8px 12px; text-align: left; position: sticky; top: 0; }
+        .preview-table td { padding: 6px 12px; border-bottom: 1px solid #f1f5f9; }
+        .modal-actions { display: flex; gap: 12px; margin-top: 20px; }
+        .btn-modal-primary { background: var(--color-violeta); color: white; border: none; padding: 10px 24px; border-radius: 12px; cursor: pointer; font-weight: 600; flex: 1; }
+        .btn-modal-secondary { background: #e2e8f0; color: #475569; border: none; padding: 10px 24px; border-radius: 12px; cursor: pointer; font-weight: 600; flex: 1; }
 
         /* ============================================
            RESPONSIVE
            ============================================ */
         @media (max-width: 768px) {
-            .filters-group {
-                flex-direction: column;
-                width: 100%;
-            }
-            .select-filter,
-            .filter-date-wrapper {
-                width: 100%;
-                min-width: unset;
-            }
-            .filter-date-wrapper {
-                min-width: unset;
-            }
-            .date-input {
-                width: 100px;
-            }
-            .kpi-grid {
-                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            }
-            .donut-chart {
-                width: 56px;
-                height: 56px;
-            }
-            .donut-chart::after {
-                width: 36px;
-                height: 36px;
-            }
+            .filters-group { flex-direction: column; width: 100%; }
+            .select-filter, .filter-date-wrapper { width: 100%; min-width: unset; }
+            .filter-date-wrapper { min-width: unset; }
+            .date-input { width: 100px; }
+            .kpi-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+            .donut-chart { width: 56px; height: 56px; }
+            .donut-chart::after { width: 36px; height: 36px; }
         }
-
         @media (max-width: 480px) {
-            .kpi-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-            .kpi-card {
-                flex-direction: column;
-                text-align: center;
-            }
-            .kpi-tag {
-                align-self: center;
-            }
-            .btn-actualizar-sheets {
-                font-size: 0.7rem;
-                padding: 6px 12px;
-                height: 34px;
-            }
+            .kpi-grid { grid-template-columns: 1fr 1fr; }
+            .kpi-card { flex-direction: column; text-align: center; }
+            .kpi-tag { align-self: center; }
+            .btn-actualizar-sheets { font-size: 0.7rem; padding: 6px 12px; height: 34px; }
         }
     </style>
 </head>
@@ -601,9 +385,7 @@
         <!-- ============================================
         KPIs
         ============================================ -->
-        <section class="kpi-grid" id="kpi-container">
-            <!-- Se genera con JavaScript -->
-        </section>
+        <section class="kpi-grid" id="kpi-container"></section>
 
         <!-- ============================================
         TABLA
@@ -619,9 +401,7 @@
                         <th>Impresiones</th>
                     </tr>
                 </thead>
-                <tbody id="table-body">
-                    <!-- Se genera con JavaScript -->
-                </tbody>
+                <tbody id="table-body"></tbody>
             </table>
             <div class="pagination-container">
                 <span id="pagination-info">1-4 / 4</span>
@@ -635,7 +415,7 @@
     </div>
 
     <!-- ============================================
-    MODAL PARA CARGAR ARCHIVOS
+    MODAL
     ============================================ -->
     <div class="modal-overlay" id="modal-cargar-datos">
         <div class="modal-content">
@@ -643,7 +423,6 @@
                 <h2>📂 Cargar Datos</h2>
                 <button class="modal-close" id="modal-close">&times;</button>
             </div>
-            
             <div class="drop-zone" id="drop-zone">
                 <div class="drop-zone-icon">📁</div>
                 <div class="drop-zone-text">
@@ -654,7 +433,6 @@
                 </div>
             </div>
             <input type="file" id="file-input" class="file-input-hidden" accept=".csv,.xlsx,.xls">
-            
             <div class="preview-container" id="preview-container">
                 <h4 style="margin-bottom: 8px; color: #1e293b;">Vista previa:</h4>
                 <div class="preview-table-container">
@@ -667,7 +445,6 @@
                     <span id="row-count">0</span> filas cargadas
                 </div>
             </div>
-            
             <div class="modal-actions">
                 <button class="btn-modal-secondary" id="modal-cancel">Cancelar</button>
                 <button class="btn-modal-primary" id="modal-apply" disabled>Aplicar Datos</button>
@@ -675,16 +452,12 @@
         </div>
     </div>
 
-    <!-- ============================================
-    JAVASCRIPT COMPLETO
-    ============================================ -->
     <script>
         // ============================================
         // 1. CONFIGURACIÓN DE GOOGLE SHEETS
         // ============================================
-        // ⚠️ CAMBIA ESTA URL POR LA DE TU GOOGLE SHEETS
-        // Cómo obtenerla: Archivo → Compartir → Publicar en la web → CSV
-        const GOOGLE_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTU_XXXXX/pub?gid=0&single=true&output=csv';
+        // ⚠️ TU ENLACE DE GOOGLE SHEETS (MODIFICADO MANUALMENTE)
+        const GOOGLE_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQF7Mmow2YIBf82Y7MTvsfcHJjJYpoTxIFDGHhKAE1PivJfT9lIdq1b7WWURrRdA3qhdXm1d6Hzf9LA/pub?gid=0&single=true&output=csv';
         
         // ============================================
         // 2. DATOS DE EJEMPLO (FALLBACK)
@@ -705,7 +478,6 @@
             totalGeneral: { totales: "42.5K", nuevos: "1.8K", compartidos: "273", impresiones: "120.1K" }
         };
 
-        // Variable para almacenar los datos originales (para filtros)
         let datosOriginales = [];
         let cargandoDesdeSheets = false;
 
@@ -720,13 +492,7 @@
         }
 
         function mostrarNotificacion(mensaje, tipo = 'success') {
-            const colores = {
-                success: '#10B981',
-                error: '#EF4444',
-                warning: '#F59E0B',
-                info: '#3B82F6'
-            };
-            
+            const colores = { success: '#10B981', error: '#EF4444', warning: '#F59E0B', info: '#3B82F6' };
             let notif = document.getElementById('notif');
             if (!notif) {
                 notif = document.createElement('div');
@@ -751,7 +517,6 @@
         // 4. RENDERIZAR DASHBOARD
         // ============================================
         function renderizarDashboard(datos) {
-            // KPIs
             const container = document.getElementById('kpi-container');
             container.innerHTML = '';
             const clases = ['donut-1', 'donut-2', 'donut-3', 'donut-4'];
@@ -770,7 +535,6 @@
                 `;
             });
 
-            // Tabla
             const tbody = document.getElementById('table-body');
             tbody.innerHTML = '';
             datos.plataformas.forEach(p => {
@@ -785,7 +549,6 @@
                 `;
             });
 
-            // Totales
             const total = datos.totalGeneral;
             tbody.innerHTML += `
                 <tr class="row-grand-total">
@@ -796,13 +559,11 @@
                     <td>${total.impresiones}</td>
                 </tr>
             `;
-
-            // Paginación
             document.getElementById('pagination-info').textContent = `1-${datos.plataformas.length} / ${datos.plataformas.length}`;
         }
 
         // ============================================
-        // 5. PROCESAR DATOS CRUDOS (desde archivo o sheets)
+        // 5. PROCESAR DATOS CRUDOS
         // ============================================
         function procesarDatosCrudos(datosRaw) {
             if (!datosRaw || datosRaw.length === 0) {
@@ -811,8 +572,6 @@
             }
 
             const columnas = Object.keys(datosRaw[0]);
-            
-            // Buscar columnas por nombre (flexible)
             const colPlataforma = columnas.find(c => /plataforma|red|nombre|channel/i.test(c)) || columnas[0];
             const colSeguidores = columnas.find(c => /seguidores totales|totales|followers/i.test(c)) || columnas[1];
             const colNuevos = columnas.find(c => /nuevos|new followers/i.test(c)) || columnas[2];
@@ -849,7 +608,6 @@
                 totalImp += imp;
             });
 
-            // Guardar datos originales para filtros
             datosOriginales = datosRaw;
 
             return {
@@ -870,15 +628,13 @@
         }
 
         // ============================================
-        // 6. ACTUALIZAR DASHBOARD DESDE DATOS CRUDOS
+        // 6. ACTUALIZAR DASHBOARD
         // ============================================
         function actualizarDashboardConDatos(datosRaw, fuente = 'archivo') {
             const datosProcesados = procesarDatosCrudos(datosRaw);
             if (!datosProcesados) return;
-            
             datosDashboard = datosProcesados;
             renderizarDashboard(datosDashboard);
-            
             const mensajes = {
                 'archivo': '✅ Datos actualizados desde archivo',
                 'sheets': '✅ Datos actualizados desde Google Sheets',
@@ -928,7 +684,6 @@
             } catch (error) {
                 console.error('Error en Google Sheets:', error);
                 mostrarNotificacion('❌ Error al cargar datos: ' + error.message, 'error');
-                // Si falla, usar datos de ejemplo
                 renderizarDashboard(datosDashboard);
             }
 
@@ -954,7 +709,6 @@
                 return;
             }
 
-            // Buscar columna de fecha en los datos originales
             const columnas = Object.keys(datosOriginales[0]);
             const colFecha = columnas.find(c => /fecha|date/i.test(c));
 
@@ -965,4 +719,28 @@
 
             const inicio = new Date(fechaInicio);
             const fin = new Date(fechaFin);
-            inicio.setHours
+            inicio.setHours(0, 0, 0, 0);
+            fin.setHours(23, 59, 59, 999);
+
+            const datosFiltrados = datosOriginales.filter(fila => {
+                if (!fila[colFecha]) return true;
+                const fechaFila = new Date(fila[colFecha]);
+                return fechaFila >= inicio && fechaFila <= fin;
+            });
+
+            if (datosFiltrados.length === 0) {
+                mostrarNotificacion('⚠️ No hay datos para el rango de fechas seleccionado', 'warning');
+                return;
+            }
+
+            actualizarDashboardConDatos(datosFiltrados, 'filtro');
+        }
+
+        // ============================================
+        // 9. EVENTOS Y CONFIGURACIÓN INICIAL
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            renderizarDashboard(datosDashboard);
+            
+            // Botón Google Sheets
+            document.getElementById

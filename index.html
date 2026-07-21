@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tablero de Control - Nico Hacker</title>
+    <!-- Librería para leer Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         /* ============================================
            DISEÑO GLOBAL
@@ -34,9 +36,6 @@
             gap: 24px;
         }
 
-        /* ============================================
-           COLORES CORPORATIVOS
-           ============================================ */
         :root {
             --color-magenta: #E1306C;
             --color-azul-francia: #1877F2;
@@ -65,12 +64,6 @@
             padding: 8px 20px 8px 16px;
             border-radius: 50px;
             border: 1px solid rgba(255, 255, 255, 0.6);
-            transition: all 0.3s ease;
-        }
-
-        .logo-container:hover {
-            transform: scale(1.02);
-            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.15);
         }
 
         .logo-icon {
@@ -83,7 +76,6 @@
             justify-content: center;
             font-size: 22px;
             color: white;
-            flex-shrink: 0;
         }
 
         .logo-text .main {
@@ -91,7 +83,6 @@
             font-weight: 700;
             color: var(--color-violeta);
         }
-
         .logo-text .sub {
             font-size: 0.65rem;
             font-weight: 400;
@@ -166,9 +157,6 @@
             font-size: 0.8rem;
             font-weight: 600;
             height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .btn-cargar-datos {
@@ -191,7 +179,7 @@
         }
 
         /* ============================================
-           TARJETAS KPI
+           TARJETAS KPI - AHORA DINÁMICAS
            ============================================ */
         .kpi-grid {
             display: grid;
@@ -244,7 +232,7 @@
         }
 
         /* ============================================
-           GRÁFICOS DE DONA - ¡¡¡FUNCIONAN CON CSS PURO!!!
+           GRÁFICOS DE DONA - CSS PURO
            ============================================ */
         .donut-chart {
             width: 70px;
@@ -266,7 +254,6 @@
             position: absolute;
         }
 
-        /* CADA GRÁFICO TIENE SU PROPIO GRADIENTE FIJO EN CSS */
         .donut-1 {
             background: conic-gradient(var(--color-magenta) 0% 80%, var(--color-azul-francia) 80% 98%, var(--color-azul-petroleo) 98% 100%);
         }
@@ -349,18 +336,147 @@
             color: #64748b;
         }
 
-        .pagination-nav {
-            display: flex;
-            gap: 8px;
+        /* ============================================
+           MODAL PARA CARGAR ARCHIVOS
+           ============================================ */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
         }
 
-        .btn-nav {
-            background: transparent;
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #1e293b;
+            font-size: 1.4rem;
+        }
+
+        .modal-close {
+            background: none;
             border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
             color: #94a3b8;
-            cursor: not-allowed;
-            font-size: 1rem;
-            font-weight: bold;
+        }
+
+        .drop-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .drop-zone:hover {
+            border-color: var(--color-violeta);
+            background: #f8fafc;
+        }
+
+        .drop-zone-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .drop-zone-text {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        .drop-zone-text strong {
+            color: var(--color-violeta);
+        }
+
+        .file-input-hidden {
+            display: none;
+        }
+
+        .preview-container {
+            display: none;
+            margin: 15px 0;
+        }
+
+        .preview-table-container {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        .preview-table th {
+            background: #f1f5f9;
+            padding: 8px 12px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+        }
+
+        .preview-table td {
+            padding: 6px 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-modal-primary {
+            background: var(--color-violeta);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .btn-modal-secondary {
+            background: #e2e8f0;
+            color: #475569;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            flex: 1;
         }
 
         /* ============================================
@@ -406,14 +522,6 @@
             .kpi-tag {
                 align-self: center;
             }
-            .logo-container {
-                padding: 6px 12px;
-            }
-            .logo-icon {
-                width: 32px;
-                height: 32px;
-                font-size: 16px;
-            }
         }
     </style>
 </head>
@@ -422,7 +530,7 @@
     <div class="dashboard-container">
 
         <!-- ============================================
-        HEADER - LOGO Y FILTROS
+        HEADER
         ============================================ -->
         <header class="header-controls">
             <div class="logo-container">
@@ -434,75 +542,33 @@
             </div>
 
             <div class="filters-group">
-                <select class="select-filter">
+                <select class="select-filter" id="filter-datasource">
                     <option>Origen de datos combinado</option>
                 </select>
-                <select class="select-filter">
+                <select class="select-filter" id="filter-account">
                     <option>Nombre de la cuenta combinada</option>
                 </select>
                 <div class="filter-date-wrapper">
                     <div class="date-range-container">
-                        <input type="date" class="date-input" value="2024-01-01">
+                        <input type="date" id="fecha-inicio" class="date-input" value="2024-01-01">
                         <span class="date-arrow">→</span>
-                        <input type="date" class="date-input" value="2024-12-31">
-                        <button class="btn-aplicar-fechas">Aplicar</button>
+                        <input type="date" id="fecha-fin" class="date-input" value="2024-12-31">
+                        <button id="aplicar-fechas" class="btn-aplicar-fechas">Aplicar</button>
                     </div>
                 </div>
-                <button class="btn-cargar-datos">📂 Cargar Datos</button>
+                <button id="btn-cargar-datos" class="btn-cargar-datos">📂 Cargar Datos</button>
             </div>
         </header>
 
         <!-- ============================================
-        TARJETAS KPI CON GRÁFICOS FIJOS
+        KPIs DINÁMICOS (se llenan con JavaScript)
         ============================================ -->
-        <section class="kpi-grid">
-            <!-- Tarjeta 1 -->
-            <div class="kpi-card">
-                <div class="kpi-info">
-                    <span class="kpi-tag">Seguidores</span>
-                    <span class="kpi-label">Seguidores totales</span>
-                    <span class="kpi-value">42.6K</span>
-                    <span class="kpi-trend">▼ -2.7%</span>
-                </div>
-                <div class="donut-chart donut-1"></div>
-            </div>
-
-            <!-- Tarjeta 2 -->
-            <div class="kpi-card">
-                <div class="kpi-info">
-                    <span class="kpi-tag">Seguidores</span>
-                    <span class="kpi-label">Nuevos seguidores</span>
-                    <span class="kpi-value">5K</span>
-                    <span class="kpi-trend">▼ -45.4%</span>
-                </div>
-                <div class="donut-chart donut-2"></div>
-            </div>
-
-            <!-- Tarjeta 3 -->
-            <div class="kpi-card">
-                <div class="kpi-info">
-                    <span class="kpi-tag">Interacción</span>
-                    <span class="kpi-label">Reacciones</span>
-                    <span class="kpi-value">52K</span>
-                    <span class="kpi-trend">▼ -8.0%</span>
-                </div>
-                <div class="donut-chart donut-3"></div>
-            </div>
-
-            <!-- Tarjeta 4 -->
-            <div class="kpi-card">
-                <div class="kpi-info">
-                    <span class="kpi-tag">Visibilidad</span>
-                    <span class="kpi-label">Impresiones</span>
-                    <span class="kpi-value">846K</span>
-                    <span class="kpi-trend">▼ -37.0%</span>
-                </div>
-                <div class="donut-chart donut-4"></div>
-            </div>
+        <section class="kpi-grid" id="kpi-container">
+            <!-- Las tarjetas se generan automáticamente con JavaScript -->
         </section>
 
         <!-- ============================================
-        TABLA DE RENDIMIENTO
+        TABLA DE RENDIMIENTO (dinámica)
         ============================================ -->
         <section class="table-section">
             <table class="performance-table">
@@ -515,46 +581,12 @@
                         <th>Impresiones</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td><span class="badge-platform bg-instagram">Instagram Insights</span></td>
-                        <td>33.9K</td>
-                        <td>767</td>
-                        <td>270</td>
-                        <td>108K</td>
-                    </tr>
-                    <tr>
-                        <td><span class="badge-platform bg-linkedin">LinkedIn Pages</span></td>
-                        <td>7.6K</td>
-                        <td>1.1K</td>
-                        <td>3</td>
-                        <td>11.4K</td>
-                    </tr>
-                    <tr>
-                        <td><span class="badge-platform bg-facebook">Facebook Insights</span></td>
-                        <td>1.1K</td>
-                        <td>4</td>
-                        <td>0</td>
-                        <td>735</td>
-                    </tr>
-                    <tr>
-                        <td><span class="badge-platform bg-tiktok">TikTok</span></td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                    </tr>
-                    <tr class="row-grand-total">
-                        <td>Total general</td>
-                        <td>42.5K</td>
-                        <td>1.8K</td>
-                        <td>273</td>
-                        <td>120.1K</td>
-                    </tr>
+                <tbody id="table-body">
+                    <!-- Se llena con JavaScript -->
                 </tbody>
             </table>
             <div class="pagination-container">
-                <span>1-4 / 4</span>
+                <span id="pagination-info">1-4 / 4</span>
                 <div class="pagination-nav">
                     <button class="btn-nav">&lt;</button>
                     <button class="btn-nav">&gt;</button>
@@ -563,5 +595,279 @@
         </section>
 
     </div>
-</body>
-</html>
+
+    <!-- ============================================
+    MODAL PARA CARGAR ARCHIVOS
+    ============================================ -->
+    <div class="modal-overlay" id="modal-cargar-datos">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📂 Cargar Datos</h2>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            
+            <div class="drop-zone" id="drop-zone">
+                <div class="drop-zone-icon">📁</div>
+                <div class="drop-zone-text">
+                    <strong>Haz clic o arrastra</strong> un archivo CSV o Excel aquí
+                </div>
+                <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 8px;">
+                    Formatos: .csv, .xlsx, .xls
+                </div>
+            </div>
+            <input type="file" id="file-input" class="file-input-hidden" accept=".csv,.xlsx,.xls">
+            
+            <div class="preview-container" id="preview-container">
+                <h4 style="margin-bottom: 8px; color: #1e293b;">Vista previa:</h4>
+                <div class="preview-table-container">
+                    <table class="preview-table">
+                        <thead id="preview-head"></thead>
+                        <tbody id="preview-body"></tbody>
+                    </table>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin: 8px 0;">
+                    <span id="row-count">0</span> filas cargadas
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn-modal-secondary" id="modal-cancel">Cancelar</button>
+                <button class="btn-modal-primary" id="modal-apply" disabled>Aplicar Datos</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+    JAVASCRIPT - LÓGICA COMPLETA
+    ============================================ -->
+    <script>
+        // ============================================
+        // 1. DATOS DE EJEMPLO (FUENTE CENTRAL)
+        // ============================================
+        let datosDashboard = {
+            kpis: [
+                { categoria: "Seguidores", etiqueta: "Seguidores totales", valor: "42.6K", tendencia: "-2.7%" },
+                { categoria: "Seguidores", etiqueta: "Nuevos seguidores", valor: "5K", tendencia: "-45.4%" },
+                { categoria: "Interacción", etiqueta: "Reacciones", valor: "52K", tendencia: "-8.0%" },
+                { categoria: "Visibilidad", etiqueta: "Impresiones", valor: "846K", tendencia: "-37.0%" }
+            ],
+            plataformas: [
+                { nombre: "Instagram Insights", clase: "bg-instagram", totales: "33.9K", nuevos: "767", compartidos: "270", impresiones: "108K" },
+                { nombre: "LinkedIn Pages", clase: "bg-linkedin", totales: "7.6K", nuevos: "1.1K", compartidos: "3", impresiones: "11.4K" },
+                { nombre: "Facebook Insights", clase: "bg-facebook", totales: "1.1K", nuevos: "4", compartidos: "0", impresiones: "735" },
+                { nombre: "TikTok", clase: "bg-tiktok", totales: "0", nuevos: "0", compartidos: "0", impresiones: "0" }
+            ],
+            totalGeneral: { totales: "42.5K", nuevos: "1.8K", compartidos: "273", impresiones: "120.1K" }
+        };
+
+        // ============================================
+        // 2. FUNCIÓN PARA RENDERIZAR EL DASHBOARD
+        // ============================================
+        function renderizarDashboard(datos) {
+            // A. Renderizar KPIs
+            const kpiContainer = document.getElementById('kpi-container');
+            kpiContainer.innerHTML = '';
+            
+            const clasesDona = ['donut-1', 'donut-2', 'donut-3', 'donut-4'];
+            
+            datos.kpis.forEach((kpi, index) => {
+                const tarjeta = `
+                    <div class="kpi-card">
+                        <div class="kpi-info">
+                            <span class="kpi-tag">${kpi.categoria}</span>
+                            <span class="kpi-label">${kpi.etiqueta}</span>
+                            <span class="kpi-value">${kpi.valor}</span>
+                            <span class="kpi-trend">▼ ${kpi.tendencia}</span>
+                        </div>
+                        <div class="donut-chart ${clasesDona[index]}"></div>
+                    </div>
+                `;
+                kpiContainer.innerHTML += tarjeta;
+            });
+
+            // B. Renderizar Tabla
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+            
+            datos.plataformas.forEach(p => {
+                const fila = `
+                    <tr>
+                        <td><span class="badge-platform ${p.clase}">${p.nombre}</span></td>
+                        <td>${p.totales}</td>
+                        <td>${p.nuevos}</td>
+                        <td>${p.compartidos}</td>
+                        <td>${p.impresiones}</td>
+                    </tr>
+                `;
+                tableBody.innerHTML += fila;
+            });
+
+            // C. Totales
+            const total = datos.totalGeneral;
+            const totalHtml = `
+                <tr class="row-grand-total">
+                    <td>Total general</td>
+                    <td>${total.totales}</td>
+                    <td>${total.nuevos}</td>
+                    <td>${total.compartidos}</td>
+                    <td>${total.impresiones}</td>
+                </tr>
+            `;
+            tableBody.innerHTML += totalHtml;
+
+            // D. Paginación
+            document.getElementById('pagination-info').textContent = `1-${datos.plataformas.length} / ${datos.plataformas.length}`;
+        }
+
+        // ============================================
+        // 3. FUNCIÓN PARA ACTUALIZAR DATOS DESDE ARCHIVO
+        // ============================================
+        function actualizarDashboardDesdeDatos(datosCargados) {
+            // Buscar columnas clave (flexible)
+            const columnas = Object.keys(datosCargados[0]);
+            
+            const colPlataforma = columnas.find(c => /plataforma|red|nombre|channel/i.test(c)) || columnas[0];
+            const colSeguidores = columnas.find(c => /seguidores totales|totales|followers/i.test(c)) || columnas[1];
+            const colNuevos = columnas.find(c => /nuevos|new followers/i.test(c)) || columnas[2];
+            const colCompartidos = columnas.find(c => /compartidos|shares|post shares/i.test(c)) || columnas[3];
+            const colImpresiones = columnas.find(c => /impresiones|impressions|vistas/i.test(c)) || columnas[4];
+
+            // Procesar plataformas
+            const plataformas = [];
+            let totalSeguidores = 0, totalNuevos = 0, totalCompartidos = 0, totalImpresiones = 0;
+
+            datosCargados.forEach(fila => {
+                const nombre = String(fila[colPlataforma] || 'Sin nombre').trim();
+                const seguidores = parseFloat(String(fila[colSeguidores] || '0').replace(/[,.]/g, '')) || 0;
+                const nuevos = parseFloat(String(fila[colNuevos] || '0').replace(/[,.]/g, '')) || 0;
+                const compartidos = parseFloat(String(fila[colCompartidos] || '0').replace(/[,.]/g, '')) || 0;
+                const impresiones = parseFloat(String(fila[colImpresiones] || '0').replace(/[,.]/g, '')) || 0;
+
+                let clase = 'bg-instagram';
+                const nombreLower = nombre.toLowerCase();
+                if (nombreLower.includes('linkedin')) clase = 'bg-linkedin';
+                else if (nombreLower.includes('facebook')) clase = 'bg-facebook';
+                else if (nombreLower.includes('tiktok')) clase = 'bg-tiktok';
+
+                plataformas.push({
+                    nombre: nombre,
+                    clase: clase,
+                    totales: formatearNumero(seguidores),
+                    nuevos: formatearNumero(nuevos),
+                    compartidos: formatearNumero(compartidos),
+                    impresiones: formatearNumero(impresiones)
+                });
+
+                totalSeguidores += seguidores;
+                totalNuevos += nuevos;
+                totalCompartidos += compartidos;
+                totalImpresiones += impresiones;
+            });
+
+            // Actualizar datos del dashboard
+            datosDashboard.kpis = [
+                { categoria: "Seguidores", etiqueta: "Seguidores totales", valor: formatearNumero(totalSeguidores), tendencia: "0%" },
+                { categoria: "Seguidores", etiqueta: "Nuevos seguidores", valor: formatearNumero(totalNuevos), tendencia: "0%" },
+                { categoria: "Interacción", etiqueta: "Reacciones", valor: formatearNumero(Math.round(totalSeguidores * 0.12)), tendencia: "0%" },
+                { categoria: "Visibilidad", etiqueta: "Impresiones", valor: formatearNumero(totalImpresiones), tendencia: "0%" }
+            ];
+
+            datosDashboard.plataformas = plataformas;
+            datosDashboard.totalGeneral = {
+                totales: formatearNumero(totalSeguidores),
+                nuevos: formatearNumero(totalNuevos),
+                compartidos: formatearNumero(totalCompartidos),
+                impresiones: formatearNumero(totalImpresiones)
+            };
+
+            // Renderizar con los nuevos datos
+            renderizarDashboard(datosDashboard);
+            mostrarNotificacion(`✅ Datos actualizados desde archivo`);
+        }
+
+        // ============================================
+        // 4. FUNCIONES DE UTILIDAD
+        // ============================================
+        function formatearNumero(num) {
+            if (num === 0) return '0';
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        function mostrarNotificacion(mensaje) {
+            let notif = document.getElementById('notificacion-datos');
+            if (!notif) {
+                notif = document.createElement('div');
+                notif.id = 'notificacion-datos';
+                notif.style.cssText = `
+                    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+                    background: #10B981; color: white; padding: 12px 24px; border-radius: 12px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-size: 0.9rem;
+                    z-index: 2000; opacity: 0; transition: opacity 0.3s ease;
+                    text-align: center;
+                `;
+                document.body.appendChild(notif);
+            }
+            notif.textContent = mensaje;
+            notif.style.opacity = '1';
+            setTimeout(() => { notif.style.opacity = '0'; }, 3000);
+        }
+
+        // ============================================
+        // 5. LÓGICA DEL MODAL PARA CARGAR ARCHIVOS
+        // ============================================
+        const modal = document.getElementById('modal-cargar-datos');
+        const btnCargar = document.getElementById('btn-cargar-datos');
+        const btnClose = document.getElementById('modal-close');
+        const btnCancel = document.getElementById('modal-cancel');
+        const btnApply = document.getElementById('modal-apply');
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const previewContainer = document.getElementById('preview-container');
+        const previewHead = document.getElementById('preview-head');
+        const previewBody = document.getElementById('preview-body');
+        const rowCount = document.getElementById('row-count');
+
+        let datosArchivo = null;
+
+        function abrirModal() { modal.classList.add('active'); }
+        function cerrarModal() { 
+            modal.classList.remove('active');
+            previewContainer.style.display = 'none';
+            btnApply.disabled = true;
+            datosArchivo = null;
+            fileInput.value = '';
+        }
+
+        btnCargar.addEventListener('click', abrirModal);
+        btnClose.addEventListener('click', cerrarModal);
+        btnCancel.addEventListener('click', cerrarModal);
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--color-violeta)';
+            dropZone.style.background = '#ede9fe';
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.borderColor = '#cbd5e1';
+            dropZone.style.background = 'transparent';
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#cbd5e1';
+            dropZone.style.background = 'transparent';
+            if (e.dataTransfer.files.length > 0) {
+                procesarArchivo(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                procesarArchivo(e.target.files[0]);
+            }
+        });
+
+        function procesarArchivo

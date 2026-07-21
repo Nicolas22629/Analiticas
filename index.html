@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tablero de Control de Analíticas de Redes Sociales</title>
+    <title>Tablero de Control - Nico Hacker</title>
     <style>
-        /* 1. DISEÑO GLOBAL Y FONDO (LAYOUT) */
+        /* ============================================
+           DISEÑO GLOBAL
+           ============================================ */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -32,7 +34,9 @@
             gap: 24px;
         }
 
-        /* PALETA DE COLORES CORPORATIVOS (VARIABLES) */
+        /* ============================================
+           COLORES CORPORATIVOS
+           ============================================ */
         :root {
             --color-magenta: #E1306C;
             --color-azul-francia: #1877F2;
@@ -42,7 +46,9 @@
             --color-rojo-decremento: #EF4444;
         }
 
-        /* 2. FRANJA SUPERIOR: CONTROL Y FILTRADO */
+        /* ============================================
+           HEADER Y LOGO
+           ============================================ */
         .header-controls {
             display: flex;
             justify-content: space-between;
@@ -51,7 +57,6 @@
             gap: 16px;
         }
 
-        /* Estilos para el logo */
         .logo-container {
             display: flex;
             align-items: center;
@@ -61,7 +66,6 @@
             border-radius: 50px;
             border: 1px solid rgba(255, 255, 255, 0.6);
             transition: all 0.3s ease;
-            cursor: default;
         }
 
         .logo-container:hover {
@@ -80,31 +84,24 @@
             font-size: 22px;
             color: white;
             flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
-        }
-
-        .logo-text {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.2;
         }
 
         .logo-text .main {
             font-size: 1.1rem;
             font-weight: 700;
             color: var(--color-violeta);
-            letter-spacing: -0.3px;
         }
 
         .logo-text .sub {
             font-size: 0.65rem;
             font-weight: 400;
             color: #94a3b8;
-            letter-spacing: 0.5px;
             text-transform: uppercase;
         }
 
-        /* Estilos UNIFICADOS para todos los filtros */
+        /* ============================================
+           FILTROS
+           ============================================ */
         .filters-group {
             display: flex;
             gap: 12px;
@@ -117,9 +114,6 @@
             background-color: #ffffff;
             border: 1px solid #cbd5e1;
             border-radius: 20px;
-            padding: 0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-            transition: all 0.3s ease;
             height: 42px;
             display: flex;
             align-items: center;
@@ -132,13 +126,6 @@
             cursor: pointer;
             outline: none;
             min-width: 180px;
-            appearance: auto;
-        }
-
-        .select-filter:hover,
-        .filter-date-wrapper:hover {
-            border-color: var(--color-violeta);
-            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.1);
         }
 
         .filter-date-wrapper {
@@ -165,19 +152,8 @@
             cursor: pointer;
         }
 
-        .date-input:hover {
-            background: #f8fafc;
-        }
-
-        .date-input:focus {
-            background: #f1f5f9;
-            border-radius: 6px;
-        }
-
         .date-arrow {
             color: #94a3b8;
-            font-size: 0.9rem;
-            font-weight: 300;
         }
 
         .btn-aplicar-fechas {
@@ -189,21 +165,12 @@
             cursor: pointer;
             font-size: 0.8rem;
             font-weight: 600;
-            transition: all 0.3s ease;
-            white-space: nowrap;
             height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .btn-aplicar-fechas:hover {
-            background: #6d28d9;
-            transform: scale(1.02);
-            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
-        }
-
-        /* Botón para cargar datos */
         .btn-cargar-datos {
             background: #10B981;
             color: white;
@@ -213,21 +180,19 @@
             cursor: pointer;
             font-size: 0.85rem;
             font-weight: 600;
-            transition: all 0.3s ease;
+            height: 42px;
             display: flex;
             align-items: center;
             gap: 6px;
-            height: 42px;
-            white-space: nowrap;
         }
 
         .btn-cargar-datos:hover {
             background: #059669;
-            transform: scale(1.02);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
 
-        /* 3. BLOQUE CENTRAL: TARJETAS DE KPIs */
+        /* ============================================
+           TARJETAS KPI
+           ============================================ */
         .kpi-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -243,12 +208,6 @@
             align-items: center;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.8);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .kpi-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
         }
 
         .kpi-info {
@@ -270,7 +229,6 @@
         .kpi-label {
             font-size: 0.9rem;
             color: #64748b;
-            margin-top: 4px;
         }
 
         .kpi-value {
@@ -283,14 +241,11 @@
             font-size: 0.8rem;
             color: var(--color-rojo-decremento);
             font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 4px;
         }
 
-        /* ======================================== */
-        /* GRÁFICOS DE DONA - CORREGIDOS */
-        /* ======================================== */
+        /* ============================================
+           GRÁFICOS DE DONA - ¡¡¡FUNCIONAN CON CSS PURO!!!
+           ============================================ */
         .donut-chart {
             width: 70px;
             height: 70px;
@@ -300,36 +255,34 @@
             align-items: center;
             position: relative;
             flex-shrink: 0;
-            /* El fondo se aplica desde el estilo en línea con el gradiente */
         }
 
         .donut-chart::after {
             content: '';
-            width: 46px;
-            height: 46px;
+            width: 44px;
+            height: 44px;
             background-color: #ffffff;
             border-radius: 50%;
             position: absolute;
-            z-index: 1;
         }
 
-        /* ======================================== */
-        /* RESPALDO: Gradientes fijos por si falla el JavaScript */
-        /* ======================================== */
-        .donut-followers {
+        /* CADA GRÁFICO TIENE SU PROPIO GRADIENTE FIJO EN CSS */
+        .donut-1 {
             background: conic-gradient(var(--color-magenta) 0% 80%, var(--color-azul-francia) 80% 98%, var(--color-azul-petroleo) 98% 100%);
         }
-        .donut-new-followers {
+        .donut-2 {
             background: conic-gradient(var(--color-azul-francia) 0% 18%, var(--color-magenta) 18% 100%);
         }
-        .donut-reactions {
+        .donut-3 {
             background: conic-gradient(var(--color-magenta) 0% 55%, var(--color-violeta) 55% 100%);
         }
-        .donut-impressions {
+        .donut-4 {
             background: conic-gradient(var(--color-magenta) 0% 85%, var(--color-violeta) 85% 99%, var(--color-azul-francia) 99% 100%);
         }
 
-        /* 4. BLOQUE INFERIOR: MATRIZ DE RENDIMIENTO */
+        /* ============================================
+           TABLA
+           ============================================ */
         .table-section {
             background-color: #ffffff;
             border-radius: 16px;
@@ -352,17 +305,12 @@
             font-weight: 700;
             padding: 14px 16px;
             border-bottom: 2px solid #e2e8f0;
-            white-space: nowrap;
         }
 
         .performance-table td {
             padding: 12px 16px;
             border-bottom: 1px solid #f1f5f9;
             color: #334155;
-        }
-
-        .performance-table tr:last-child td {
-            border-bottom: none;
         }
 
         .badge-platform {
@@ -375,7 +323,6 @@
             text-align: center;
         }
 
-        /* Clases de colores para las redes sociales */
         .bg-instagram { background-color: var(--color-magenta); }
         .bg-linkedin { background-color: var(--color-azul-petroleo); }
         .bg-facebook { background-color: var(--color-azul-francia); }
@@ -416,116 +363,56 @@
             font-weight: bold;
         }
 
-        /* Responsive */
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
         @media (max-width: 768px) {
             .filters-group {
                 flex-direction: column;
                 width: 100%;
             }
-            
             .select-filter,
             .filter-date-wrapper {
                 width: 100%;
                 min-width: unset;
             }
-            
             .filter-date-wrapper {
                 min-width: unset;
-                padding: 4px 8px;
             }
-            
-            .date-range-container {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 4px;
-            }
-            
             .date-input {
                 width: 100px;
-                font-size: 0.75rem;
             }
-            
-            .btn-aplicar-fechas {
-                font-size: 0.7rem;
-                padding: 4px 10px;
-                height: 28px;
-            }
-
             .kpi-grid {
                 grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-                gap: 12px;
             }
-
-            .kpi-card {
-                padding: 16px;
-            }
-
-            .kpi-value {
-                font-size: 1.4rem;
-            }
-
             .donut-chart {
                 width: 56px;
                 height: 56px;
             }
-
             .donut-chart::after {
                 width: 36px;
                 height: 36px;
             }
-
-            .badge-platform {
-                min-width: 100px;
-                font-size: 0.75rem;
-                padding: 4px 8px;
-            }
-
-            .performance-table {
-                font-size: 0.75rem;
-            }
-
-            .performance-table th,
-            .performance-table td {
-                padding: 8px 10px;
-            }
         }
 
         @media (max-width: 480px) {
-            .date-input {
-                width: 80px;
-                font-size: 0.7rem;
-            }
-
             .kpi-grid {
                 grid-template-columns: 1fr 1fr;
             }
-
             .kpi-card {
                 flex-direction: column;
                 text-align: center;
-                gap: 8px;
             }
-
             .kpi-tag {
                 align-self: center;
             }
-
             .logo-container {
-                padding: 6px 12px 6px 10px;
+                padding: 6px 12px;
             }
-
             .logo-icon {
                 width: 32px;
                 height: 32px;
                 font-size: 16px;
-            }
-
-            .logo-text .main {
-                font-size: 0.9rem;
-            }
-
-            .logo-text .sub {
-                font-size: 0.55rem;
             }
         }
     </style>
@@ -533,10 +420,11 @@
 <body>
 
     <div class="dashboard-container">
-        
-        <!-- 2. FRANJA SUPERIOR: CONTROL Y FILTRADO -->
+
+        <!-- ============================================
+        HEADER - LOGO Y FILTROS
+        ============================================ -->
         <header class="header-controls">
-            <!-- LOGO: Ícono + Texto -->
             <div class="logo-container">
                 <div class="logo-icon">📊</div>
                 <div class="logo-text">
@@ -546,57 +434,127 @@
             </div>
 
             <div class="filters-group">
-                <!-- Filtro 1: Origen de datos -->
-                <select class="select-filter" id="filter-datasource">
+                <select class="select-filter">
                     <option>Origen de datos combinado</option>
                 </select>
-                
-                <!-- Filtro 2: Cuenta -->
-                <select class="select-filter" id="filter-account">
+                <select class="select-filter">
                     <option>Nombre de la cuenta combinada</option>
                 </select>
-                
-                <!-- Filtro 3: Rango de fechas con calendario -->
                 <div class="filter-date-wrapper">
                     <div class="date-range-container">
-                        <input type="date" id="fecha-inicio" class="date-input" value="2024-01-01">
+                        <input type="date" class="date-input" value="2024-01-01">
                         <span class="date-arrow">→</span>
-                        <input type="date" id="fecha-fin" class="date-input" value="2024-12-31">
-                        <button id="aplicar-fechas" class="btn-aplicar-fechas">Aplicar</button>
+                        <input type="date" class="date-input" value="2024-12-31">
+                        <button class="btn-aplicar-fechas">Aplicar</button>
                     </div>
                 </div>
-                
-                <!-- Botón para cargar archivos -->
-                <button id="btn-cargar-datos" class="btn-cargar-datos">
-                    📂 Cargar Datos
-                </button>
+                <button class="btn-cargar-datos">📂 Cargar Datos</button>
             </div>
         </header>
 
-        <!-- 3. BLOQUE CENTRAL: CONTENEDOR DE KPIs -->
-        <section class="kpi-grid" id="kpi-container">
-            <!-- Los módulos de KPIs se inyectarán de manera dinámica aquí mediante JavaScript -->
+        <!-- ============================================
+        TARJETAS KPI CON GRÁFICOS FIJOS
+        ============================================ -->
+        <section class="kpi-grid">
+            <!-- Tarjeta 1 -->
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <span class="kpi-tag">Seguidores</span>
+                    <span class="kpi-label">Seguidores totales</span>
+                    <span class="kpi-value">42.6K</span>
+                    <span class="kpi-trend">▼ -2.7%</span>
+                </div>
+                <div class="donut-chart donut-1"></div>
+            </div>
+
+            <!-- Tarjeta 2 -->
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <span class="kpi-tag">Seguidores</span>
+                    <span class="kpi-label">Nuevos seguidores</span>
+                    <span class="kpi-value">5K</span>
+                    <span class="kpi-trend">▼ -45.4%</span>
+                </div>
+                <div class="donut-chart donut-2"></div>
+            </div>
+
+            <!-- Tarjeta 3 -->
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <span class="kpi-tag">Interacción</span>
+                    <span class="kpi-label">Reacciones</span>
+                    <span class="kpi-value">52K</span>
+                    <span class="kpi-trend">▼ -8.0%</span>
+                </div>
+                <div class="donut-chart donut-3"></div>
+            </div>
+
+            <!-- Tarjeta 4 -->
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <span class="kpi-tag">Visibilidad</span>
+                    <span class="kpi-label">Impresiones</span>
+                    <span class="kpi-value">846K</span>
+                    <span class="kpi-trend">▼ -37.0%</span>
+                </div>
+                <div class="donut-chart donut-4"></div>
+            </div>
         </section>
 
-        <!-- 4. BLOQUE INFERIOR: MATRIZ DE RENDIMIENTO -->
+        <!-- ============================================
+        TABLA DE RENDIMIENTO
+        ============================================ -->
         <section class="table-section">
             <table class="performance-table">
                 <thead>
                     <tr>
                         <th>Origen de datos combinado</th>
-                        <th>Seguidores totales de la página</th>
-                        <th>Nuevos seguidores de la página</th>
-                        <th>Publicaciones compartidas</th>
-                        <th>Impresiones de publicaciones</th>
+                        <th>Seguidores totales</th>
+                        <th>Nuevos seguidores</th>
+                        <th>Compartidos</th>
+                        <th>Impresiones</th>
                     </tr>
                 </thead>
-                <tbody id="table-body">
-                    <!-- Las filas y el total general se inyectarán dinámicamente aquí -->
+                <tbody>
+                    <tr>
+                        <td><span class="badge-platform bg-instagram">Instagram Insights</span></td>
+                        <td>33.9K</td>
+                        <td>767</td>
+                        <td>270</td>
+                        <td>108K</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge-platform bg-linkedin">LinkedIn Pages</span></td>
+                        <td>7.6K</td>
+                        <td>1.1K</td>
+                        <td>3</td>
+                        <td>11.4K</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge-platform bg-facebook">Facebook Insights</span></td>
+                        <td>1.1K</td>
+                        <td>4</td>
+                        <td>0</td>
+                        <td>735</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge-platform bg-tiktok">TikTok</span></td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                    </tr>
+                    <tr class="row-grand-total">
+                        <td>Total general</td>
+                        <td>42.5K</td>
+                        <td>1.8K</td>
+                        <td>273</td>
+                        <td>120.1K</td>
+                    </tr>
                 </tbody>
             </table>
-            
             <div class="pagination-container">
-                <span id="pagination-info">0-0 / 0</span>
+                <span>1-4 / 4</span>
                 <div class="pagination-nav">
                     <button class="btn-nav">&lt;</button>
                     <button class="btn-nav">&gt;</button>
@@ -605,151 +563,5 @@
         </section>
 
     </div>
-
-    <!-- 5. ARQUITECTURA DE DATOS (MÓDULO JAVASCRIPT) -->
-    <script>
-        // ============================================
-        // DATOS DE EJEMPLO
-        // ============================================
-        const fuenteDeDatosExterna = {
-            "configuracion": {
-                "logo": "Su logotipo",
-                "filtros": {
-                    "fuente": "Origen de datos combinado",
-                    "cuenta": "Nombre de la cuenta combinada",
-                    "periodo": "1 de ene. de 2024 - 31 de dic. de 2024"
-                }
-            },
-            "kpis": [
-                {
-                    "categoria": "Seguidores",
-                    "etiqueta": "Seguidores totales",
-                    "valor": "42.6K",
-                    "tendencia": "-2.7%",
-                    "gradiente_cono": "conic-gradient(var(--color-magenta) 0% 80%, var(--color-azul-francia) 80% 98%, var(--color-azul-petroleo) 98% 100%)"
-                },
-                {
-                    "categoria": "Seguidores",
-                    "etiqueta": "Nuevos seguidores",
-                    "valor": "5K",
-                    "tendencia": "-45.4%",
-                    "gradiente_cono": "conic-gradient(var(--color-azul-francia) 0% 18%, var(--color-magenta) 18% 100%)"
-                },
-                {
-                    "categoria": "Interacción",
-                    "etiqueta": "Reacciones",
-                    "valor": "52K",
-                    "tendencia": "-8.0%",
-                    "gradiente_cono": "conic-gradient(var(--color-magenta) 0% 55%, var(--color-violeta) 55% 100%)"
-                },
-                {
-                    "categoria": "Visibilidad",
-                    "etiqueta": "Impresiones",
-                    "valor": "846K",
-                    "tendencia": "-37.0%",
-                    "gradiente_cono": "conic-gradient(var(--color-magenta) 0% 85%, var(--color-violeta) 85% 99%, var(--color-azul-francia) 99% 100%)"
-                }
-            ],
-            "rendimiento_plataformas": [
-                { "nombre": "Instagram Insights", "clase_estilo": "bg-instagram", "totales": "33.9K", "nuevos": "767", "compartidos": "270", "impresiones": "108K" },
-                { "nombre": "LinkedIn Pages", "clase_estilo": "bg-linkedin", "totales": "7.6K", "nuevos": "1.1K", "compartidos": "3", "impresiones": "11.4K" },
-                { "nombre": "Facebook Insights", "clase_estilo": "bg-facebook", "totales": "1.1K", "nuevos": "4", "compartidos": "0", "impresiones": "735" },
-                { "nombre": "TikTok", "clase_estilo": "bg-tiktok", "totales": "0", "nuevos": "0", "compartidos": "0", "impresiones": "0" }
-            ],
-            "total_general": {
-                "nombre": "Total general",
-                "totales": "42.5K",
-                "nuevos": "1.8K",
-                "compartidos": "273",
-                "impresiones": "120.1K"
-            }
-        };
-
-        // ============================================
-        // FUNCIÓN PRINCIPAL: INICIALIZAR DASHBOARD
-        // ============================================
-        function inicializarDashboard(datos) {
-            
-            // A. Renderizar Filtros
-            document.getElementById('filter-datasource').options[0].text = datos.configuracion.filtros.fuente;
-            document.getElementById('filter-account').options[0].text = datos.configuracion.filtros.cuenta;
-            document.getElementById('filter-date').options[0].text = datos.configuracion.filtros.periodo;
-
-            // ============================================
-            // B. RENDERIZAR TARJETAS DE KPIs (CON GRÁFICOS)
-            // ============================================
-            const kpiContainer = document.getElementById('kpi-container');
-            kpiContainer.innerHTML = '';
-            
-            // Clases de respaldo para cada gráfico
-            const clasesRespaldo = [
-                'donut-followers',
-                'donut-new-followers',
-                'donut-reactions',
-                'donut-impressions'
-            ];
-            
-            datos.kpis.forEach((kpi, index) => {
-                // Usar el gradiente de los datos o un respaldo si no existe
-                const gradiente = kpi.gradiente_cono || '';
-                const claseRespaldo = clasesRespaldo[index] || '';
-                
-                const tarjetaHtml = `
-                    <div class="kpi-card">
-                        <div class="kpi-info">
-                            <span class="kpi-tag">${kpi.categoria}</span>
-                            <span class="kpi-label">${kpi.etiqueta}</span>
-                            <span class="kpi-value">${kpi.valor}</span>
-                            <span class="kpi-trend">▼ ${kpi.tendencia}</span>
-                        </div>
-                        <!-- IMPORTANTE: El estilo en línea aplica el gradiente -->
-                        <div class="donut-chart ${claseRespaldo}" style="background: ${gradiente};"></div>
-                    </div>
-                `;
-                kpiContainer.innerHTML += tarjetaHtml;
-            });
-
-            // C. Renderizar Tabla de Rendimiento por Canal
-            const tableBody = document.getElementById('table-body');
-            tableBody.innerHTML = '';
-
-            datos.rendimiento_plataformas.forEach(fila => {
-                const filaHtml = `
-                    <tr>
-                        <td><span class="badge-platform ${fila.clase_estilo}">${fila.nombre}</span></td>
-                        <td>${fila.totales}</td>
-                        <td>${fila.nuevos}</td>
-                        <td>${fila.compartidos}</td>
-                        <td>${fila.impresiones}</td>
-                    </tr>
-                `;
-                tableBody.innerHTML += filaHtml;
-            });
-
-            // D. Inyectar Fila de Totales Generales
-            const total = datos.total_general;
-            const totalHtml = `
-                <tr class="row-grand-total">
-                    <td>${total.nombre}</td>
-                    <td>${total.totales}</td>
-                    <td>${total.nuevos}</td>
-                    <td>${total.compartidos}</td>
-                    <td>${total.impresiones}</td>
-                </tr>
-            `;
-            tableBody.innerHTML += totalHtml;
-
-            // E. Actualizar Metadatos de Paginación
-            const cantidadPlataformas = datos.rendimiento_plataformas.length;
-            document.getElementById('pagination-info').innerText = `1-${cantidadPlataformas} / ${cantidadPlataformas}`;
-        }
-
-        // ============================================
-        // EJECUTAR AL CARGAR LA PÁGINA
-        // ============================================
-        document.addEventListener('DOMContentLoaded', () => {
-            inicializarDashboard(fuenteDeDatosExterna);
-        });
-    </script>
 </body>
 </html>

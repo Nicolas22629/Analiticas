@@ -20,7 +20,7 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
-            color: #64748B;
+            color: #334155;
         }
 
         .dashboard-container {
@@ -34,12 +34,12 @@
 
         /* PALETA DE COLORES CORPORATIVOS (VARIABLES) */
         :root {
-            --color-magenta: #E1306C;      /* Instagram */
-            --color-azul-francia: #1877F2; /* Facebook */
-            --color-azul-petroleo: #0A66C2; /* LinkedIn */
-            --color-violeta: #7C3AED;      /* Morado moderno */
-            --color-negro: #000000;        /* TikTok */
-            --color-rojo-decremento: #EF4444; /* Rojo suave */
+            --color-magenta: #E1306C;
+            --color-azul-francia: #1877F2;
+            --color-azul-petroleo: #0A66C2;
+            --color-violeta: #7C3AED;
+            --color-negro: #000000;
+            --color-rojo-decremento: #EF4444;
         }
 
         /* 2. FRANJA SUPERIOR: CONTROL Y FILTRADO */
@@ -51,7 +51,7 @@
             gap: 16px;
         }
 
-        /* Estilos para el logo con ícono y texto */
+        /* Estilos para el logo */
         .logo-container {
             display: flex;
             align-items: center;
@@ -104,22 +104,103 @@
             text-transform: uppercase;
         }
 
+        /* Estilos UNIFICADOS para todos los filtros */
         .filters-group {
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .select-filter,
+        .filter-date-wrapper {
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+            height: 42px;
+            display: flex;
+            align-items: center;
         }
 
         .select-filter {
-            background-color: #ffffff;
-            border: 1px solid #cbd5e1;
             padding: 10px 16px;
-            border-radius: 20px;
             font-size: 0.85rem;
             color: #475569;
             cursor: pointer;
             outline: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            min-width: 180px;
+            appearance: auto;
+        }
+
+        .select-filter:hover,
+        .filter-date-wrapper:hover {
+            border-color: var(--color-violeta);
+            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.1);
+        }
+
+        .filter-date-wrapper {
+            padding: 4px 8px 4px 12px;
+            min-width: 320px;
+        }
+
+        .date-range-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .date-input {
+            padding: 4px 6px;
+            border: none;
+            outline: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #475569;
+            width: 120px;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .date-input:hover {
+            background: #f8fafc;
+        }
+
+        .date-input:focus {
+            background: #f1f5f9;
+            border-radius: 6px;
+        }
+
+        .date-arrow {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            font-weight: 300;
+        }
+
+        .btn-aplicar-fechas {
+            background: var(--color-violeta);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-aplicar-fechas:hover {
+            background: #6d28d9;
+            transform: scale(1.02);
+            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
         }
 
         /* 3. BLOQUE CENTRAL: TARJETAS DE KPIs */
@@ -138,6 +219,12 @@
             align-items: center;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.8);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
         }
 
         .kpi-info {
@@ -177,7 +264,7 @@
             gap: 4px;
         }
 
-        /* Gráficos de dona dinámicos - CORREGIDO */
+        /* Gráficos de dona dinámicos */
         .donut-chart {
             width: 70px;
             height: 70px;
@@ -186,6 +273,7 @@
             justify-content: center;
             align-items: center;
             position: relative;
+            flex-shrink: 0;
         }
 
         .donut-chart::after {
@@ -215,11 +303,11 @@
         }
 
         .performance-table th {
-            background-color: #ffffff;
+            background-color: #f8fafc;
             color: #1e293b;
             font-weight: 700;
             padding: 14px 16px;
-            border-bottom: 2px solid #f1f5f9;
+            border-bottom: 2px solid #e2e8f0;
             white-space: nowrap;
         }
 
@@ -229,6 +317,10 @@
             color: #334155;
         }
 
+        .performance-table tr:last-child td {
+            border-bottom: none;
+        }
+
         .badge-platform {
             color: #ffffff;
             padding: 6px 12px;
@@ -236,9 +328,10 @@
             font-weight: 600;
             display: inline-block;
             min-width: 140px;
+            text-align: center;
         }
 
-        /* Clases de colores asignadas dinámicamente - CORREGIDO */
+        /* Clases de colores para las redes sociales */
         .bg-instagram { background-color: var(--color-magenta); }
         .bg-linkedin { background-color: var(--color-azul-petroleo); }
         .bg-facebook { background-color: var(--color-azul-francia); }
@@ -246,12 +339,11 @@
 
         .row-grand-total {
             font-weight: 700;
-            background-color: #ffffff;
+            background-color: #f8fafc;
         }
 
         .row-grand-total td {
             border-top: 2px solid #e2e8f0;
-            border-bottom: none;
             padding-top: 18px;
             color: #0f172a;
         }
@@ -279,6 +371,119 @@
             font-size: 1rem;
             font-weight: bold;
         }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .filters-group {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .select-filter,
+            .filter-date-wrapper {
+                width: 100%;
+                min-width: unset;
+            }
+            
+            .filter-date-wrapper {
+                min-width: unset;
+                padding: 4px 8px;
+            }
+            
+            .date-range-container {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 4px;
+            }
+            
+            .date-input {
+                width: 100px;
+                font-size: 0.75rem;
+            }
+            
+            .btn-aplicar-fechas {
+                font-size: 0.7rem;
+                padding: 4px 10px;
+                height: 28px;
+            }
+
+            .kpi-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 12px;
+            }
+
+            .kpi-card {
+                padding: 16px;
+            }
+
+            .kpi-value {
+                font-size: 1.4rem;
+            }
+
+            .donut-chart {
+                width: 56px;
+                height: 56px;
+            }
+
+            .donut-chart::after {
+                width: 36px;
+                height: 36px;
+            }
+
+            .badge-platform {
+                min-width: 100px;
+                font-size: 0.75rem;
+                padding: 4px 8px;
+            }
+
+            .performance-table {
+                font-size: 0.75rem;
+            }
+
+            .performance-table th,
+            .performance-table td {
+                padding: 8px 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .date-input {
+                width: 80px;
+                font-size: 0.7rem;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .kpi-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 8px;
+            }
+
+            .kpi-tag {
+                align-self: center;
+            }
+
+            .logo-container {
+                padding: 6px 12px 6px 10px;
+            }
+
+            .logo-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+            }
+
+            .logo-text .main {
+                font-size: 0.9rem;
+            }
+
+            .logo-text .sub {
+                font-size: 0.55rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -289,47 +494,46 @@
         <header class="header-controls">
             <!-- LOGO: Ícono + Texto -->
             <div class="logo-container">
-                <img src="https://wallpapers.com/images/hd/albert-einstein-pictures-3185-x-3120-m1xto7x0i9py34b2.jpg" 
-     alt="Logo" 
-     style="width: 42px; height: 42px; border-radius: 12px; object-fit: cover;">
-                <div class="logo-text">
-                    <span class="main">Nico Hacker</span>
-                    <span class="sub">Dashboard</span>
-                </div>
-            </div>
+                <div class="logo-container">
+    <img src="https://wallpapers.com/images/hd/albert-einstein-pictures-3185-x-3120-m1xto7x0i9py34b2.jpg" 
+         alt="Logo de Einstein" 
+         style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-violeta);">
+    <div class="logo-text">
+        <span class="main">Nico Hacker</span>
+           </div>
+</div>
 
             <div class="filters-group">
-    <!-- Filtro 1: Origen de datos -->
-    <select class="select-filter" id="filter-datasource">
-        <option>Cargando origen...</option>
-    </select>
-    
-    <!-- Filtro 2: Cuenta -->
-    <select class="select-filter" id="filter-account">
-        <option>Cargando cuenta...</option>
-    </select>
-    
-    <!-- Filtro 3: Rango de fechas con calendario -->
-    <div class="filter-date-wrapper">
-        <div class="date-range-container">
-            <input type="date" id="fecha-inicio" class="date-input" value="2024-01-01">
-            <span class="date-arrow">→</span>
-            <input type="date" id="fecha-fin" class="date-input" value="2024-12-31">
-            <button id="aplicar-fechas" class="btn-aplicar-fechas">
-                Aplicar
-            </button>
-        </div>
-    </div>
-</div>
+                <!-- Filtro 1: Origen de datos -->
+                <select class="select-filter" id="filter-datasource">
+                    <option>Origen de datos combinado</option>
+                </select>
+                
+                <!-- Filtro 2: Cuenta -->
+                <select class="select-filter" id="filter-account">
+                    <option>Nombre de la cuenta combinada</option>
+                </select>
+                
+                <!-- Filtro 3: Rango de fechas con calendario -->
+                <div class="filter-date-wrapper">
+                    <div class="date-range-container">
+                        <input type="date" id="fecha-inicio" class="date-input" value="2024-01-01">
+                        <span class="date-arrow">→</span>
+                        <input type="date" id="fecha-fin" class="date-input" value="2024-12-31">
+                        <button id="aplicar-fechas" class="btn-aplicar-fechas">
+                            Aplicar
+                        </button>
+                    </div>
+                </div>
             </div>
         </header>
 
-        <!-- 3. BLOQUE CENTRAL: CONTENEDOR DE KPIs ASINCRÓNICOS -->
+        <!-- 3. BLOQUE CENTRAL: CONTENEDOR DE KPIs -->
         <section class="kpi-grid" id="kpi-container">
             <!-- Los módulos de KPIs se inyectarán de manera dinámica aquí mediante JavaScript -->
         </section>
 
-        <!-- 4. BLOQUE INFERIOR: MATRIZ DE RENDIMIENTO ASINCRÓNICA -->
+        <!-- 4. BLOQUE INFERIOR: MATRIZ DE RENDIMIENTO -->
         <section class="table-section">
             <table class="performance-table">
                 <thead>
@@ -359,7 +563,7 @@
 
     <!-- 5. ARQUITECTURA DE DATOS (MÓDULO JAVASCRIPT) -->
     <script>
-        // Simulamos la estructura de la Fuente de Datos Externa (Google Sheets / Excel / JSON API)
+        // Simulamos la estructura de la Fuente de Datos Externa
         const fuenteDeDatosExterna = {
             "configuracion": {
                 "logo": "Su logotipo",
@@ -417,14 +621,14 @@
         // Función encargada de renderizar los elementos en la interfaz basados en la fuente de datos
         function inicializarDashboard(datos) {
             
-            // A. Renderizar Encabezado y Filtros
+            // A. Renderizar Filtros
             document.getElementById('filter-datasource').options[0].text = datos.configuracion.filtros.fuente;
             document.getElementById('filter-account').options[0].text = datos.configuracion.filtros.cuenta;
             document.getElementById('filter-date').options[0].text = datos.configuracion.filtros.periodo;
 
             // B. Renderizar Tarjetas de KPIs de forma dinámica
             const kpiContainer = document.getElementById('kpi-container');
-            kpiContainer.innerHTML = ''; // Limpiar contenedor
+            kpiContainer.innerHTML = '';
             
             datos.kpis.forEach(kpi => {
                 const tarjetaHtml = `
@@ -443,7 +647,7 @@
 
             // C. Renderizar Tabla de Rendimiento por Canal
             const tableBody = document.getElementById('table-body');
-            tableBody.innerHTML = ''; // Limpiar filas anteriores
+            tableBody.innerHTML = '';
 
             datos.rendimiento_plataformas.forEach(fila => {
                 const filaHtml = `

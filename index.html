@@ -456,8 +456,8 @@
         // ============================================
         // 1. CONFIGURACIÓN DE GOOGLE SHEETS
         // ============================================
-        // ⚠️ TU ENLACE DE GOOGLE SHEETS (MODIFICADO MANUALMENTE)
-        const GOOGLE_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQF7Mmow2YIBf82Y7MTvsfcHJjJYpoTxlFDGHhkAE1PivJfT9lldq1b7WWURrRdA3qhdXm1d6Hzf9LA/pub?gid=0&single=true&output=csv';
+        // ⚠️ TU ENLACE DE GOOGLE SHEETS (CORRECTO Y FUNCIONAL)
+        const GOOGLE_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQF7Mmow2YIBf82Y7MTvsfcHJjJYpoTxlFDGHhkAE1PivJfT9lldq1b7WWURrRdA3qhdXm1d6Hzf9LA/pub?output=csv';
         
         // ============================================
         // 2. DATOS DE EJEMPLO (FALLBACK)
@@ -753,7 +753,7 @@
         function procesarArchivo(file) {
             const extension = file.name.split('.').pop().toLowerCase();
             if (!['csv', 'xlsx', 'xls'].includes(extension)) {
-                               alert('Formato no soportado. Usa .csv, .xlsx o .xls');
+                alert('Formato no soportado. Usa .csv, .xlsx o .xls');
                 return;
             }
 
@@ -769,7 +769,7 @@
                     }
                     
                     const encabezados = lineas[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-                    const datos = [];
+                                       const datos = [];
                     for (let i = 1; i < lineas.length; i++) {
                         const valores = lineas[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
                         const fila = {};
@@ -841,7 +841,7 @@
         document.getElementById('modal-close').addEventListener('click', cerrarModal);
         document.getElementById('modal-cancel').addEventListener('click', cerrarModal);
 
-        // Cerrar modal al hacer clic fuera del contenido
+        // Cerrar modal al hacer clic fuera
         document.getElementById('modal-cargar-datos').addEventListener('click', function(e) {
             if (e.target === this) cerrarModal();
         });

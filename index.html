@@ -157,8 +157,14 @@
             font-size: 0.8rem;
             font-weight: 600;
             height: 32px;
+            transition: background 0.3s;
         }
 
+        .btn-aplicar-fechas:hover {
+            background: #6d28d9;
+        }
+
+        /* Botones de acción */
         .btn-cargar-datos {
             background: #10B981;
             color: white;
@@ -177,6 +183,31 @@
 
         .btn-cargar-datos:hover {
             background: #059669;
+        }
+
+        .btn-actualizar-sheets {
+            background: #3B82F6;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.3s;
+        }
+
+        .btn-actualizar-sheets:hover {
+            background: #2563EB;
+        }
+
+        .btn-actualizar-sheets:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         /* ============================================
@@ -233,7 +264,7 @@
         }
 
         /* ============================================
-           GRÁFICOS DE DONA - CSS PURO (SIEMPRE FUNCIONAN)
+           GRÁFICOS DE DONA - CSS PURO
            ============================================ */
         .donut-chart {
             width: 70px;
@@ -255,7 +286,6 @@
             position: absolute;
         }
 
-        /* Gradientes fijos - NO DEPENDEN DE JAVASCRIPT */
         .donut-1 {
             background: conic-gradient(var(--color-magenta) 0% 80%, var(--color-azul-francia) 80% 98%, var(--color-azul-petroleo) 98% 100%);
         }
@@ -524,6 +554,11 @@
             .kpi-tag {
                 align-self: center;
             }
+            .btn-actualizar-sheets {
+                font-size: 0.7rem;
+                padding: 6px 12px;
+                height: 34px;
+            }
         }
     </style>
 </head>
@@ -558,6 +593,7 @@
                         <button id="aplicar-fechas" class="btn-aplicar-fechas">Aplicar</button>
                     </div>
                 </div>
+                <button id="btn-actualizar-sheets" class="btn-actualizar-sheets">🔄 Google Sheets</button>
                 <button id="btn-cargar-datos" class="btn-cargar-datos">📂 Cargar Datos</button>
             </div>
         </header>
@@ -644,7 +680,14 @@
     ============================================ -->
     <script>
         // ============================================
-        // 1. DATOS DE EJEMPLO
+        // 1. CONFIGURACIÓN DE GOOGLE SHEETS
+        // ============================================
+        // ⚠️ CAMBIA ESTA URL POR LA DE TU GOOGLE SHEETS
+        // Cómo obtenerla: Archivo → Compartir → Publicar en la web → CSV
+        const GOOGLE_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTU_XXXXX/pub?gid=0&single=true&output=csv';
+        
+        // ============================================
+        // 2. DATOS DE EJEMPLO (FALLBACK)
         // ============================================
         let datosDashboard = {
             kpis: [
@@ -662,8 +705,50 @@
             totalGeneral: { totales: "42.5K", nuevos: "1.8K", compartidos: "273", impresiones: "120.1K" }
         };
 
+        // Variable para almacenar los datos originales (para filtros)
+        let datosOriginales = [];
+        let cargandoDesdeSheets = false;
+
         // ============================================
-        // 2. RENDERIZAR DASHBOARD
+        // 3. FUNCIONES DE UTILIDAD
+        // ============================================
+        function formatearNumero(num) {
+            if (num === 0 || isNaN(num)) return '0';
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        function mostrarNotificacion(mensaje, tipo = 'success') {
+            const colores = {
+                success: '#10B981',
+                error: '#EF4444',
+                warning: '#F59E0B',
+                info: '#3B82F6'
+            };
+            
+            let notif = document.getElementById('notif');
+            if (!notif) {
+                notif = document.createElement('div');
+                notif.id = 'notif';
+                notif.style.cssText = `
+                    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+                    padding: 12px 24px; border-radius: 12px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 2000;
+                    opacity: 0; transition: opacity 0.3s; text-align: center;
+                    color: white; font-weight: 500; max-width: 90%;
+                `;
+                document.body.appendChild(notif);
+            }
+            notif.style.background = colores[tipo] || colores.success;
+            notif.textContent = mensaje;
+            notif.style.opacity = '1';
+            clearTimeout(window.notifTimeout);
+            window.notifTimeout = setTimeout(() => notif.style.opacity = '0', 4000);
+        }
+
+        // ============================================
+        // 4. RENDERIZAR DASHBOARD
         // ============================================
         function renderizarDashboard(datos) {
             // KPIs
@@ -717,100 +802,17 @@
         }
 
         // ============================================
-        // 3. PROCESAR ARCHIVOS
+        // 5. PROCESAR DATOS CRUDOS (desde archivo o sheets)
         // ============================================
-        function formatearNumero(num) {
-            if (num === 0) return '0';
-            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-            return num.toString();
-        }
-
-        function procesarArchivo(file) {
-            const extension = file.name.split('.').pop().toLowerCase();
-            if (!['csv', 'xlsx', 'xls'].includes(extension)) {
-                alert('Formato no soportado. Usa .csv, .xlsx o .xls');
-                return;
+        function procesarDatosCrudos(datosRaw) {
+            if (!datosRaw || datosRaw.length === 0) {
+                mostrarNotificacion('⚠️ No hay datos para procesar', 'warning');
+                return null;
             }
 
-            const reader = new FileReader();
-
-            if (extension === 'csv') {
-                reader.onload = function(e) {
-                    const texto = e.target.result;
-                    const lineas = texto.split('\n').filter(l => l.trim() !== '');
-                    if (lineas.length < 2) { alert('CSV vacío o inválido'); return; }
-                    
-                    const encabezados = lineas[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-                    const datos = [];
-                    for (let i = 1; i < lineas.length; i++) {
-                        const valores = lineas[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
-                        const fila = {};
-                        encabezados.forEach((h, idx) => fila[h] = valores[idx] || '');
-                        datos.push(fila);
-                    }
-                    mostrarVistaPrevia(encabezados, datos);
-                    window.datosCargados = datos;
-                };
-                reader.readAsText(file);
-            } else {
-                // Excel
-                reader.onload = function(e) {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-                    if (jsonData.length === 0) { alert('Excel vacío'); return; }
-                    const encabezados = Object.keys(jsonData[0]);
-                    mostrarVistaPrevia(encabezados, jsonData);
-                    window.datosCargados = jsonData;
-                };
-                reader.readAsArrayBuffer(file);
-            }
-        }
-
-        // ============================================
-        // 4. VISTA PREVIA
-        // ============================================
-        function mostrarVistaPrevia(encabezados, datos) {
-            const head = document.getElementById('preview-head');
-            const body = document.getElementById('preview-body');
-            const container = document.getElementById('preview-container');
+            const columnas = Object.keys(datosRaw[0]);
             
-            head.innerHTML = '';
-            body.innerHTML = '';
-            
-            const trHead = document.createElement('tr');
-            encabezados.forEach(h => {
-                const th = document.createElement('th');
-                th.textContent = h;
-                trHead.appendChild(th);
-            });
-            head.appendChild(trHead);
-            
-            const max = Math.min(datos.length, 5);
-            for (let i = 0; i < max; i++) {
-                const tr = document.createElement('tr');
-                encabezados.forEach(h => {
-                    const td = document.createElement('td');
-                    td.textContent = datos[i][h] || '';
-                    tr.appendChild(td);
-                });
-                body.appendChild(tr);
-            }
-            
-            document.getElementById('row-count').textContent = datos.length;
-            container.style.display = 'block';
-            document.getElementById('modal-apply').disabled = false;
-        }
-
-        // ============================================
-        // 5. ACTUALIZAR DASHBOARD CON NUEVOS DATOS
-        // ============================================
-        function actualizarDashboardConArchivo(datos) {
-            if (!datos || datos.length === 0) return;
-
-            const columnas = Object.keys(datos[0]);
+            // Buscar columnas por nombre (flexible)
             const colPlataforma = columnas.find(c => /plataforma|red|nombre|channel/i.test(c)) || columnas[0];
             const colSeguidores = columnas.find(c => /seguidores totales|totales|followers/i.test(c)) || columnas[1];
             const colNuevos = columnas.find(c => /nuevos|new followers/i.test(c)) || columnas[2];
@@ -820,7 +822,7 @@
             const plataformas = [];
             let totalSeg = 0, totalNue = 0, totalComp = 0, totalImp = 0;
 
-            datos.forEach(fila => {
+            datosRaw.forEach(fila => {
                 const nombre = String(fila[colPlataforma] || 'Sin nombre').trim();
                 const seg = parseFloat(String(fila[colSeguidores] || '0').replace(/[,.]/g, '')) || 0;
                 const nue = parseFloat(String(fila[colNuevos] || '0').replace(/[,.]/g, '')) || 0;
@@ -847,106 +849,120 @@
                 totalImp += imp;
             });
 
-            datosDashboard.kpis = [
-                { categoria: "Seguidores", etiqueta: "Seguidores totales", valor: formatearNumero(totalSeg), tendencia: "0%" },
-                { categoria: "Seguidores", etiqueta: "Nuevos seguidores", valor: formatearNumero(totalNue), tendencia: "0%" },
-                { categoria: "Interacción", etiqueta: "Reacciones", valor: formatearNumero(Math.round(totalSeg * 0.12)), tendencia: "0%" },
-                { categoria: "Visibilidad", etiqueta: "Impresiones", valor: formatearNumero(totalImp), tendencia: "0%" }
-            ];
+            // Guardar datos originales para filtros
+            datosOriginales = datosRaw;
 
-            datosDashboard.plataformas = plataformas;
-            datosDashboard.totalGeneral = {
-                totales: formatearNumero(totalSeg),
-                nuevos: formatearNumero(totalNue),
-                compartidos: formatearNumero(totalComp),
-                impresiones: formatearNumero(totalImp)
+            return {
+                kpis: [
+                    { categoria: "Seguidores", etiqueta: "Seguidores totales", valor: formatearNumero(totalSeg), tendencia: "0%" },
+                    { categoria: "Seguidores", etiqueta: "Nuevos seguidores", valor: formatearNumero(totalNue), tendencia: "0%" },
+                    { categoria: "Interacción", etiqueta: "Reacciones", valor: formatearNumero(Math.round(totalSeg * 0.12)), tendencia: "0%" },
+                    { categoria: "Visibilidad", etiqueta: "Impresiones", valor: formatearNumero(totalImp), tendencia: "0%" }
+                ],
+                plataformas: plataformas,
+                totalGeneral: {
+                    totales: formatearNumero(totalSeg),
+                    nuevos: formatearNumero(totalNue),
+                    compartidos: formatearNumero(totalComp),
+                    impresiones: formatearNumero(totalImp)
+                }
             };
+        }
 
+        // ============================================
+        // 6. ACTUALIZAR DASHBOARD DESDE DATOS CRUDOS
+        // ============================================
+        function actualizarDashboardConDatos(datosRaw, fuente = 'archivo') {
+            const datosProcesados = procesarDatosCrudos(datosRaw);
+            if (!datosProcesados) return;
+            
+            datosDashboard = datosProcesados;
             renderizarDashboard(datosDashboard);
-            mostrarNotificacion('✅ Datos actualizados desde archivo');
-            cerrarModal();
+            
+            const mensajes = {
+                'archivo': '✅ Datos actualizados desde archivo',
+                'sheets': '✅ Datos actualizados desde Google Sheets',
+                'filtro': '📅 Datos filtrados por fecha'
+            };
+            mostrarNotificacion(mensajes[fuente] || '✅ Datos actualizados');
         }
 
         // ============================================
-        // 6. NOTIFICACIONES
+        // 7. CARGAR DESDE GOOGLE SHEETS
         // ============================================
-        function mostrarNotificacion(mensaje) {
-            let notif = document.getElementById('notif');
-            if (!notif) {
-                notif = document.createElement('div');
-                notif.id = 'notif';
-                notif.style.cssText = `
-                    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-                    background: #10B981; color: white; padding: 12px 24px; border-radius: 12px;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 2000;
-                    opacity: 0; transition: opacity 0.3s; text-align: center;
-                `;
-                document.body.appendChild(notif);
+        async function cargarDesdeGoogleSheets() {
+            const btn = document.getElementById('btn-actualizar-sheets');
+            btn.disabled = true;
+            btn.textContent = '⏳ Cargando...';
+            cargandoDesdeSheets = true;
+
+            try {
+                const response = await fetch(GOOGLE_SHEETS_URL);
+                if (!response.ok) throw new Error('Error al conectar con Google Sheets');
+                
+                const csvText = await response.text();
+                const lineas = csvText.split('\n').filter(l => l.trim() !== '');
+                
+                if (lineas.length < 2) {
+                    throw new Error('El archivo está vacío o tiene formato inválido');
+                }
+
+                const encabezados = lineas[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+                const datos = [];
+
+                for (let i = 1; i < lineas.length; i++) {
+                    const valores = lineas[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+                    const fila = {};
+                    encabezados.forEach((h, idx) => {
+                        fila[h] = valores[idx] || '';
+                    });
+                    datos.push(fila);
+                }
+
+                if (datos.length === 0) {
+                    throw new Error('No se encontraron datos en el archivo');
+                }
+
+                actualizarDashboardConDatos(datos, 'sheets');
+                
+            } catch (error) {
+                console.error('Error en Google Sheets:', error);
+                mostrarNotificacion('❌ Error al cargar datos: ' + error.message, 'error');
+                // Si falla, usar datos de ejemplo
+                renderizarDashboard(datosDashboard);
             }
-            notif.textContent = mensaje;
-            notif.style.opacity = '1';
-            setTimeout(() => notif.style.opacity = '0', 3000);
+
+            btn.disabled = false;
+            btn.textContent = '🔄 Google Sheets';
+            cargandoDesdeSheets = false;
         }
 
         // ============================================
-        // 7. EVENTOS DEL MODAL
+        // 8. FILTRO POR FECHAS
         // ============================================
-        const modal = document.getElementById('modal-cargar-datos');
-        const btnAbrir = document.getElementById('btn-cargar-datos');
-        const btnCerrar = document.getElementById('modal-close');
-        const btnCancelar = document.getElementById('modal-cancel');
-        const btnAplicar = document.getElementById('modal-apply');
-        const dropZone = document.getElementById('drop-zone');
-        const fileInput = document.getElementById('file-input');
+        function aplicarFiltroFechas() {
+            const fechaInicio = document.getElementById('fecha-inicio').value;
+            const fechaFin = document.getElementById('fecha-fin').value;
 
-        function abrirModal() { modal.classList.add('active'); }
-        function cerrarModal() {
-            modal.classList.remove('active');
-            document.getElementById('preview-container').style.display = 'none';
-            btnAplicar.disabled = true;
-            window.datosCargados = null;
-            fileInput.value = '';
-        }
-
-        btnAbrir.addEventListener('click', abrirModal);
-        btnCerrar.addEventListener('click', cerrarModal);
-        btnCancelar.addEventListener('click', cerrarModal);
-
-        dropZone.addEventListener('click', () => fileInput.click());
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.style.borderColor = 'var(--color-violeta)';
-            dropZone.style.background = '#ede9fe';
-        });
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.style.borderColor = '#cbd5e1';
-            dropZone.style.background = 'transparent';
-        });
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.style.borderColor = '#cbd5e1';
-            dropZone.style.background = 'transparent';
-            if (e.dataTransfer.files.length > 0) {
-                procesarArchivo(e.dataTransfer.files[0]);
+            if (!fechaInicio || !fechaFin) {
+                mostrarNotificacion('⚠️ Selecciona un rango de fechas válido', 'warning');
+                return;
             }
-        });
 
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                procesarArchivo(e.target.files[0]);
+            if (!datosOriginales || datosOriginales.length === 0) {
+                mostrarNotificacion('⚠️ Primero carga datos (archivo o Google Sheets)', 'warning');
+                return;
             }
-        });
 
-        btnAplicar.addEventListener('click', () => {
-            if (window.datosCargados) {
-                actualizarDashboardConArchivo(window.datosCargados);
+            // Buscar columna de fecha en los datos originales
+            const columnas = Object.keys(datosOriginales[0]);
+            const colFecha = columnas.find(c => /fecha|date/i.test(c));
+
+            if (!colFecha) {
+                mostrarNotificacion('⚠️ No se encontró columna "Fecha" en los datos', 'warning');
+                return;
             }
-        });
 
-        // ============================================
-        // 8. INICIAR DASHBOARD
-        // ============================================
-        renderizarDashboard(datosDashboard);
-    </script>
-</body>
-</html>
+            const inicio = new Date(fechaInicio);
+            const fin = new Date(fechaFin);
+            inicio.setHours

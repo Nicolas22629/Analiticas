@@ -413,9 +413,8 @@
         </section>
 
     </div>
-
     <!-- ============================================
-    MODAL
+    MODAL PARA CARGAR ARCHIVOS (HTML)
     ============================================ -->
     <div class="modal-overlay" id="modal-cargar-datos">
         <div class="modal-content">
@@ -454,13 +453,13 @@
 
     <script>
         // ============================================
-        // 1. CONFIGURACIÓN DE GOOGLE SHEETS
+        // CONFIGURACIÓN DE GOOGLE SHEETS
         // ============================================
-        // ⚠️ TU ENLACE DE GOOGLE SHEETS (CORRECTO Y FUNCIONAL)
+        // ⚠️ REEMPLAZA ESTE ENLACE CON EL QUE GENERES EN GOOGLE SHEETS
         const GOOGLE_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQF7Mmow2YIBf82Y7MTvsfcHJjJYpoTxlFDGHhkAE1PivJfT9lldq1b7WWURrRdA3qhdXm1d6Hzf9LA/pub?output=csv';
         
         // ============================================
-        // 2. DATOS DE EJEMPLO (FALLBACK)
+        // DATOS DE EJEMPLO (FALLBACK)
         // ============================================
         let datosDashboard = {
             kpis: [
@@ -481,7 +480,7 @@
         let datosOriginales = [];
 
         // ============================================
-        // 3. FUNCIONES DE UTILIDAD
+        // FUNCIONES DE UTILIDAD
         // ============================================
         function formatearNumero(num) {
             if (num === 0 || isNaN(num)) return '0';
@@ -513,10 +512,9 @@
         }
 
         // ============================================
-        // 4. RENDERIZAR DASHBOARD
+        // RENDERIZAR DASHBOARD
         // ============================================
         function renderizarDashboard(datos) {
-            // KPIs
             const container = document.getElementById('kpi-container');
             container.innerHTML = '';
             const clases = ['donut-1', 'donut-2', 'donut-3', 'donut-4'];
@@ -535,7 +533,6 @@
                 `;
             });
 
-            // Tabla
             const tbody = document.getElementById('table-body');
             tbody.innerHTML = '';
             datos.plataformas.forEach(p => {
@@ -550,7 +547,6 @@
                 `;
             });
 
-            // Totales
             const total = datos.totalGeneral;
             tbody.innerHTML += `
                 <tr class="row-grand-total">
@@ -565,7 +561,7 @@
         }
 
         // ============================================
-        // 5. PROCESAR DATOS CRUDOS
+        // PROCESAR DATOS CRUDOS
         // ============================================
         function procesarDatosCrudos(datosRaw) {
             if (!datosRaw || datosRaw.length === 0) {
@@ -630,7 +626,7 @@
         }
 
         // ============================================
-        // 6. ACTUALIZAR DASHBOARD
+        // ACTUALIZAR DASHBOARD
         // ============================================
         function actualizarDashboardConDatos(datosRaw, fuente = 'archivo') {
             const datosProcesados = procesarDatosCrudos(datosRaw);
@@ -646,7 +642,7 @@
         }
 
         // ============================================
-        // 7. CARGAR DESDE GOOGLE SHEETS
+        // CARGAR DESDE GOOGLE SHEETS
         // ============================================
         async function cargarDesdeGoogleSheets() {
             const btn = document.getElementById('btn-actualizar-sheets');
@@ -693,7 +689,7 @@
         }
 
         // ============================================
-        // 8. FILTRO POR FECHAS
+        // FILTRO POR FECHAS
         // ============================================
         function aplicarFiltroFechas() {
             const fechaInicio = document.getElementById('fecha-inicio').value;
@@ -737,7 +733,7 @@
         }
 
         // ============================================
-        // 9. FUNCIONES DEL MODAL (CARGAR ARCHIVOS)
+        // FUNCIONES DEL MODAL (CARGAR ARCHIVOS)
         // ============================================
         function abrirModal() {
             document.getElementById('modal-cargar-datos').classList.add('active');
@@ -769,7 +765,7 @@
                     }
                     
                     const encabezados = lineas[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-                                       const datos = [];
+                    const datos = [];
                     for (let i = 1; i < lineas.length; i++) {
                         const valores = lineas[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
                         const fila = {};
@@ -800,7 +796,7 @@
         }
 
         // ============================================
-        // 10. VISTA PREVIA DE ARCHIVOS
+        // VISTA PREVIA DE ARCHIVOS
         // ============================================
         function mostrarVistaPrevia(encabezados, datos) {
             const head = document.getElementById('preview-head');
@@ -835,7 +831,7 @@
         }
 
         // ============================================
-        // 11. EVENTOS DEL MODAL
+        // EVENTOS DEL MODAL
         // ============================================
         document.getElementById('btn-cargar-datos').addEventListener('click', abrirModal);
         document.getElementById('modal-close').addEventListener('click', cerrarModal);
@@ -879,7 +875,7 @@
         });
 
         // ============================================
-        // 12. APLICAR DATOS DESDE ARCHIVO
+        // APLICAR DATOS DESDE ARCHIVO
         // ============================================
         document.getElementById('modal-apply').addEventListener('click', function() {
             if (window.datosCargados) {
@@ -889,14 +885,14 @@
         });
 
         // ============================================
-        // 13. EVENTOS DE FILTRO DE FECHAS
+        // EVENTOS DE FILTRO DE FECHAS
         // ============================================
         document.getElementById('aplicar-fechas').addEventListener('click', aplicarFiltroFechas);
         document.getElementById('fecha-inicio').addEventListener('change', aplicarFiltroFechas);
         document.getElementById('fecha-fin').addEventListener('change', aplicarFiltroFechas);
 
         // ============================================
-        // 14. INICIAR DASHBOARD
+        // INICIAR DASHBOARD
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
             renderizarDashboard(datosDashboard);

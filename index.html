@@ -172,6 +172,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            transition: background 0.3s;
         }
 
         .btn-cargar-datos:hover {
@@ -179,7 +180,7 @@
         }
 
         /* ============================================
-           TARJETAS KPI - AHORA DINÁMICAS
+           TARJETAS KPI
            ============================================ */
         .kpi-grid {
             display: grid;
@@ -232,7 +233,7 @@
         }
 
         /* ============================================
-           GRÁFICOS DE DONA - CSS PURO
+           GRÁFICOS DE DONA - CSS PURO (SIEMPRE FUNCIONAN)
            ============================================ */
         .donut-chart {
             width: 70px;
@@ -254,6 +255,7 @@
             position: absolute;
         }
 
+        /* Gradientes fijos - NO DEPENDEN DE JAVASCRIPT */
         .donut-1 {
             background: conic-gradient(var(--color-magenta) 0% 80%, var(--color-azul-francia) 80% 98%, var(--color-azul-petroleo) 98% 100%);
         }
@@ -561,14 +563,14 @@
         </header>
 
         <!-- ============================================
-        KPIs DINÁMICOS (se llenan con JavaScript)
+        KPIs
         ============================================ -->
         <section class="kpi-grid" id="kpi-container">
-            <!-- Las tarjetas se generan automáticamente con JavaScript -->
+            <!-- Se genera con JavaScript -->
         </section>
 
         <!-- ============================================
-        TABLA DE RENDIMIENTO (dinámica)
+        TABLA
         ============================================ -->
         <section class="table-section">
             <table class="performance-table">
@@ -582,7 +584,7 @@
                     </tr>
                 </thead>
                 <tbody id="table-body">
-                    <!-- Se llena con JavaScript -->
+                    <!-- Se genera con JavaScript -->
                 </tbody>
             </table>
             <div class="pagination-container">
@@ -638,11 +640,11 @@
     </div>
 
     <!-- ============================================
-    JAVASCRIPT - LÓGICA COMPLETA
+    JAVASCRIPT COMPLETO
     ============================================ -->
     <script>
         // ============================================
-        // 1. DATOS DE EJEMPLO (FUENTE CENTRAL)
+        // 1. DATOS DE EJEMPLO
         // ============================================
         let datosDashboard = {
             kpis: [
@@ -661,17 +663,16 @@
         };
 
         // ============================================
-        // 2. FUNCIÓN PARA RENDERIZAR EL DASHBOARD
+        // 2. RENDERIZAR DASHBOARD
         // ============================================
         function renderizarDashboard(datos) {
-            // A. Renderizar KPIs
-            const kpiContainer = document.getElementById('kpi-container');
-            kpiContainer.innerHTML = '';
+            // KPIs
+            const container = document.getElementById('kpi-container');
+            container.innerHTML = '';
+            const clases = ['donut-1', 'donut-2', 'donut-3', 'donut-4'];
             
-            const clasesDona = ['donut-1', 'donut-2', 'donut-3', 'donut-4'];
-            
-            datos.kpis.forEach((kpi, index) => {
-                const tarjeta = `
+            datos.kpis.forEach((kpi, i) => {
+                container.innerHTML += `
                     <div class="kpi-card">
                         <div class="kpi-info">
                             <span class="kpi-tag">${kpi.categoria}</span>
@@ -679,18 +680,16 @@
                             <span class="kpi-value">${kpi.valor}</span>
                             <span class="kpi-trend">▼ ${kpi.tendencia}</span>
                         </div>
-                        <div class="donut-chart ${clasesDona[index]}"></div>
+                        <div class="donut-chart ${clases[i]}"></div>
                     </div>
                 `;
-                kpiContainer.innerHTML += tarjeta;
             });
 
-            // B. Renderizar Tabla
-            const tableBody = document.getElementById('table-body');
-            tableBody.innerHTML = '';
-            
+            // Tabla
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
             datos.plataformas.forEach(p => {
-                const fila = `
+                tbody.innerHTML += `
                     <tr>
                         <td><span class="badge-platform ${p.clase}">${p.nombre}</span></td>
                         <td>${p.totales}</td>
@@ -699,12 +698,11 @@
                         <td>${p.impresiones}</td>
                     </tr>
                 `;
-                tableBody.innerHTML += fila;
             });
 
-            // C. Totales
+            // Totales
             const total = datos.totalGeneral;
-            const totalHtml = `
+            tbody.innerHTML += `
                 <tr class="row-grand-total">
                     <td>Total general</td>
                     <td>${total.totales}</td>
@@ -713,80 +711,13 @@
                     <td>${total.impresiones}</td>
                 </tr>
             `;
-            tableBody.innerHTML += totalHtml;
 
-            // D. Paginación
+            // Paginación
             document.getElementById('pagination-info').textContent = `1-${datos.plataformas.length} / ${datos.plataformas.length}`;
         }
 
         // ============================================
-        // 3. FUNCIÓN PARA ACTUALIZAR DATOS DESDE ARCHIVO
-        // ============================================
-        function actualizarDashboardDesdeDatos(datosCargados) {
-            // Buscar columnas clave (flexible)
-            const columnas = Object.keys(datosCargados[0]);
-            
-            const colPlataforma = columnas.find(c => /plataforma|red|nombre|channel/i.test(c)) || columnas[0];
-            const colSeguidores = columnas.find(c => /seguidores totales|totales|followers/i.test(c)) || columnas[1];
-            const colNuevos = columnas.find(c => /nuevos|new followers/i.test(c)) || columnas[2];
-            const colCompartidos = columnas.find(c => /compartidos|shares|post shares/i.test(c)) || columnas[3];
-            const colImpresiones = columnas.find(c => /impresiones|impressions|vistas/i.test(c)) || columnas[4];
-
-            // Procesar plataformas
-            const plataformas = [];
-            let totalSeguidores = 0, totalNuevos = 0, totalCompartidos = 0, totalImpresiones = 0;
-
-            datosCargados.forEach(fila => {
-                const nombre = String(fila[colPlataforma] || 'Sin nombre').trim();
-                const seguidores = parseFloat(String(fila[colSeguidores] || '0').replace(/[,.]/g, '')) || 0;
-                const nuevos = parseFloat(String(fila[colNuevos] || '0').replace(/[,.]/g, '')) || 0;
-                const compartidos = parseFloat(String(fila[colCompartidos] || '0').replace(/[,.]/g, '')) || 0;
-                const impresiones = parseFloat(String(fila[colImpresiones] || '0').replace(/[,.]/g, '')) || 0;
-
-                let clase = 'bg-instagram';
-                const nombreLower = nombre.toLowerCase();
-                if (nombreLower.includes('linkedin')) clase = 'bg-linkedin';
-                else if (nombreLower.includes('facebook')) clase = 'bg-facebook';
-                else if (nombreLower.includes('tiktok')) clase = 'bg-tiktok';
-
-                plataformas.push({
-                    nombre: nombre,
-                    clase: clase,
-                    totales: formatearNumero(seguidores),
-                    nuevos: formatearNumero(nuevos),
-                    compartidos: formatearNumero(compartidos),
-                    impresiones: formatearNumero(impresiones)
-                });
-
-                totalSeguidores += seguidores;
-                totalNuevos += nuevos;
-                totalCompartidos += compartidos;
-                totalImpresiones += impresiones;
-            });
-
-            // Actualizar datos del dashboard
-            datosDashboard.kpis = [
-                { categoria: "Seguidores", etiqueta: "Seguidores totales", valor: formatearNumero(totalSeguidores), tendencia: "0%" },
-                { categoria: "Seguidores", etiqueta: "Nuevos seguidores", valor: formatearNumero(totalNuevos), tendencia: "0%" },
-                { categoria: "Interacción", etiqueta: "Reacciones", valor: formatearNumero(Math.round(totalSeguidores * 0.12)), tendencia: "0%" },
-                { categoria: "Visibilidad", etiqueta: "Impresiones", valor: formatearNumero(totalImpresiones), tendencia: "0%" }
-            ];
-
-            datosDashboard.plataformas = plataformas;
-            datosDashboard.totalGeneral = {
-                totales: formatearNumero(totalSeguidores),
-                nuevos: formatearNumero(totalNuevos),
-                compartidos: formatearNumero(totalCompartidos),
-                impresiones: formatearNumero(totalImpresiones)
-            };
-
-            // Renderizar con los nuevos datos
-            renderizarDashboard(datosDashboard);
-            mostrarNotificacion(`✅ Datos actualizados desde archivo`);
-        }
-
-        // ============================================
-        // 4. FUNCIONES DE UTILIDAD
+        // 3. PROCESAR ARCHIVOS
         // ============================================
         function formatearNumero(num) {
             if (num === 0) return '0';
@@ -795,57 +726,193 @@
             return num.toString();
         }
 
+        function procesarArchivo(file) {
+            const extension = file.name.split('.').pop().toLowerCase();
+            if (!['csv', 'xlsx', 'xls'].includes(extension)) {
+                alert('Formato no soportado. Usa .csv, .xlsx o .xls');
+                return;
+            }
+
+            const reader = new FileReader();
+
+            if (extension === 'csv') {
+                reader.onload = function(e) {
+                    const texto = e.target.result;
+                    const lineas = texto.split('\n').filter(l => l.trim() !== '');
+                    if (lineas.length < 2) { alert('CSV vacío o inválido'); return; }
+                    
+                    const encabezados = lineas[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+                    const datos = [];
+                    for (let i = 1; i < lineas.length; i++) {
+                        const valores = lineas[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+                        const fila = {};
+                        encabezados.forEach((h, idx) => fila[h] = valores[idx] || '');
+                        datos.push(fila);
+                    }
+                    mostrarVistaPrevia(encabezados, datos);
+                    window.datosCargados = datos;
+                };
+                reader.readAsText(file);
+            } else {
+                // Excel
+                reader.onload = function(e) {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                    if (jsonData.length === 0) { alert('Excel vacío'); return; }
+                    const encabezados = Object.keys(jsonData[0]);
+                    mostrarVistaPrevia(encabezados, jsonData);
+                    window.datosCargados = jsonData;
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        }
+
+        // ============================================
+        // 4. VISTA PREVIA
+        // ============================================
+        function mostrarVistaPrevia(encabezados, datos) {
+            const head = document.getElementById('preview-head');
+            const body = document.getElementById('preview-body');
+            const container = document.getElementById('preview-container');
+            
+            head.innerHTML = '';
+            body.innerHTML = '';
+            
+            const trHead = document.createElement('tr');
+            encabezados.forEach(h => {
+                const th = document.createElement('th');
+                th.textContent = h;
+                trHead.appendChild(th);
+            });
+            head.appendChild(trHead);
+            
+            const max = Math.min(datos.length, 5);
+            for (let i = 0; i < max; i++) {
+                const tr = document.createElement('tr');
+                encabezados.forEach(h => {
+                    const td = document.createElement('td');
+                    td.textContent = datos[i][h] || '';
+                    tr.appendChild(td);
+                });
+                body.appendChild(tr);
+            }
+            
+            document.getElementById('row-count').textContent = datos.length;
+            container.style.display = 'block';
+            document.getElementById('modal-apply').disabled = false;
+        }
+
+        // ============================================
+        // 5. ACTUALIZAR DASHBOARD CON NUEVOS DATOS
+        // ============================================
+        function actualizarDashboardConArchivo(datos) {
+            if (!datos || datos.length === 0) return;
+
+            const columnas = Object.keys(datos[0]);
+            const colPlataforma = columnas.find(c => /plataforma|red|nombre|channel/i.test(c)) || columnas[0];
+            const colSeguidores = columnas.find(c => /seguidores totales|totales|followers/i.test(c)) || columnas[1];
+            const colNuevos = columnas.find(c => /nuevos|new followers/i.test(c)) || columnas[2];
+            const colCompartidos = columnas.find(c => /compartidos|shares|post shares/i.test(c)) || columnas[3];
+            const colImpresiones = columnas.find(c => /impresiones|impressions|vistas/i.test(c)) || columnas[4];
+
+            const plataformas = [];
+            let totalSeg = 0, totalNue = 0, totalComp = 0, totalImp = 0;
+
+            datos.forEach(fila => {
+                const nombre = String(fila[colPlataforma] || 'Sin nombre').trim();
+                const seg = parseFloat(String(fila[colSeguidores] || '0').replace(/[,.]/g, '')) || 0;
+                const nue = parseFloat(String(fila[colNuevos] || '0').replace(/[,.]/g, '')) || 0;
+                const comp = parseFloat(String(fila[colCompartidos] || '0').replace(/[,.]/g, '')) || 0;
+                const imp = parseFloat(String(fila[colImpresiones] || '0').replace(/[,.]/g, '')) || 0;
+
+                let clase = 'bg-instagram';
+                const nLower = nombre.toLowerCase();
+                if (nLower.includes('linkedin')) clase = 'bg-linkedin';
+                else if (nLower.includes('facebook')) clase = 'bg-facebook';
+                else if (nLower.includes('tiktok')) clase = 'bg-tiktok';
+
+                plataformas.push({
+                    nombre, clase,
+                    totales: formatearNumero(seg),
+                    nuevos: formatearNumero(nue),
+                    compartidos: formatearNumero(comp),
+                    impresiones: formatearNumero(imp)
+                });
+
+                totalSeg += seg;
+                totalNue += nue;
+                totalComp += comp;
+                totalImp += imp;
+            });
+
+            datosDashboard.kpis = [
+                { categoria: "Seguidores", etiqueta: "Seguidores totales", valor: formatearNumero(totalSeg), tendencia: "0%" },
+                { categoria: "Seguidores", etiqueta: "Nuevos seguidores", valor: formatearNumero(totalNue), tendencia: "0%" },
+                { categoria: "Interacción", etiqueta: "Reacciones", valor: formatearNumero(Math.round(totalSeg * 0.12)), tendencia: "0%" },
+                { categoria: "Visibilidad", etiqueta: "Impresiones", valor: formatearNumero(totalImp), tendencia: "0%" }
+            ];
+
+            datosDashboard.plataformas = plataformas;
+            datosDashboard.totalGeneral = {
+                totales: formatearNumero(totalSeg),
+                nuevos: formatearNumero(totalNue),
+                compartidos: formatearNumero(totalComp),
+                impresiones: formatearNumero(totalImp)
+            };
+
+            renderizarDashboard(datosDashboard);
+            mostrarNotificacion('✅ Datos actualizados desde archivo');
+            cerrarModal();
+        }
+
+        // ============================================
+        // 6. NOTIFICACIONES
+        // ============================================
         function mostrarNotificacion(mensaje) {
-            let notif = document.getElementById('notificacion-datos');
+            let notif = document.getElementById('notif');
             if (!notif) {
                 notif = document.createElement('div');
-                notif.id = 'notificacion-datos';
+                notif.id = 'notif';
                 notif.style.cssText = `
                     position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
                     background: #10B981; color: white; padding: 12px 24px; border-radius: 12px;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-size: 0.9rem;
-                    z-index: 2000; opacity: 0; transition: opacity 0.3s ease;
-                    text-align: center;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 2000;
+                    opacity: 0; transition: opacity 0.3s; text-align: center;
                 `;
                 document.body.appendChild(notif);
             }
             notif.textContent = mensaje;
             notif.style.opacity = '1';
-            setTimeout(() => { notif.style.opacity = '0'; }, 3000);
+            setTimeout(() => notif.style.opacity = '0', 3000);
         }
 
         // ============================================
-        // 5. LÓGICA DEL MODAL PARA CARGAR ARCHIVOS
+        // 7. EVENTOS DEL MODAL
         // ============================================
         const modal = document.getElementById('modal-cargar-datos');
-        const btnCargar = document.getElementById('btn-cargar-datos');
-        const btnClose = document.getElementById('modal-close');
-        const btnCancel = document.getElementById('modal-cancel');
-        const btnApply = document.getElementById('modal-apply');
+        const btnAbrir = document.getElementById('btn-cargar-datos');
+        const btnCerrar = document.getElementById('modal-close');
+        const btnCancelar = document.getElementById('modal-cancel');
+        const btnAplicar = document.getElementById('modal-apply');
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('file-input');
-        const previewContainer = document.getElementById('preview-container');
-        const previewHead = document.getElementById('preview-head');
-        const previewBody = document.getElementById('preview-body');
-        const rowCount = document.getElementById('row-count');
-
-        let datosArchivo = null;
 
         function abrirModal() { modal.classList.add('active'); }
-        function cerrarModal() { 
+        function cerrarModal() {
             modal.classList.remove('active');
-            previewContainer.style.display = 'none';
-            btnApply.disabled = true;
-            datosArchivo = null;
+            document.getElementById('preview-container').style.display = 'none';
+            btnAplicar.disabled = true;
+            window.datosCargados = null;
             fileInput.value = '';
         }
 
-        btnCargar.addEventListener('click', abrirModal);
-        btnClose.addEventListener('click', cerrarModal);
-        btnCancel.addEventListener('click', cerrarModal);
+        btnAbrir.addEventListener('click', abrirModal);
+        btnCerrar.addEventListener('click', cerrarModal);
+        btnCancelar.addEventListener('click', cerrarModal);
 
         dropZone.addEventListener('click', () => fileInput.click());
-
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
             dropZone.style.borderColor = 'var(--color-violeta)';
@@ -870,4 +937,16 @@
             }
         });
 
-        function procesarArchivo
+        btnAplicar.addEventListener('click', () => {
+            if (window.datosCargados) {
+                actualizarDashboardConArchivo(window.datosCargados);
+            }
+        });
+
+        // ============================================
+        // 8. INICIAR DASHBOARD
+        // ============================================
+        renderizarDashboard(datosDashboard);
+    </script>
+</body>
+</html>

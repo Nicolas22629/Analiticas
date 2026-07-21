@@ -280,7 +280,7 @@
             content: '';
             width: 46px;
             height: 46px;
-            background-color: #ffffff;
+            background: #ffffff;
             border-radius: 50px;
             position: absolute;
         }
@@ -503,30 +503,33 @@
            </div>
 </div>
 
-            <div class="filters-group">
-                <!-- Filtro 1: Origen de datos -->
-                <select class="select-filter" id="filter-datasource">
-                    <option>Origen de datos combinado</option>
-                </select>
-                
-                <!-- Filtro 2: Cuenta -->
-                <select class="select-filter" id="filter-account">
-                    <option>Nombre de la cuenta combinada</option>
-                </select>
-                
-                <!-- Filtro 3: Rango de fechas con calendario -->
-                <div class="filter-date-wrapper">
-                    <div class="date-range-container">
-                        <input type="date" id="fecha-inicio" class="date-input" value="2024-01-01">
-                        <span class="date-arrow">→</span>
-                        <input type="date" id="fecha-fin" class="date-input" value="2024-12-31">
-                        <button id="aplicar-fechas" class="btn-aplicar-fechas">
-                            Aplicar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </header>
+           <div class="filters-group">
+    <!-- Filtro 1: Origen de datos -->
+    <select class="select-filter" id="filter-datasource">
+        <option>Origen de datos combinado</option>
+    </select>
+    
+    <!-- Filtro 2: Cuenta -->
+    <select class="select-filter" id="filter-account">
+        <option>Nombre de la cuenta combinada</option>
+    </select>
+    
+    <!-- Filtro 3: Rango de fechas con calendario -->
+    <div class="filter-date-wrapper">
+        <div class="date-range-container">
+            <input type="date" id="fecha-inicio" class="date-input" value="2024-01-01">
+            <span class="date-arrow">→</span>
+            <input type="date" id="fecha-fin" class="date-input" value="2024-12-31">
+            <button id="aplicar-fechas" class="btn-aplicar-fechas">Aplicar</button>
+        </div>
+    </div>
+    
+    <!-- Botón para cargar archivos - CORRECTAMENTE UBICADO -->
+    <button id="btn-cargar-datos" class="btn-cargar-datos">
+        📂 Cargar Datos
+    </button>
+</div>
+</header>
 
         <!-- 3. BLOQUE CENTRAL: CONTENEDOR DE KPIs -->
         <section class="kpi-grid" id="kpi-container">

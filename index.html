@@ -479,7 +479,6 @@
         };
 
         let datosOriginales = [];
-        let cargandoDesdeSheets = false;
 
         // ============================================
         // 3. FUNCIONES DE UTILIDAD
@@ -517,6 +516,7 @@
         // 4. RENDERIZAR DASHBOARD
         // ============================================
         function renderizarDashboard(datos) {
+            // KPIs
             const container = document.getElementById('kpi-container');
             container.innerHTML = '';
             const clases = ['donut-1', 'donut-2', 'donut-3', 'donut-4'];
@@ -535,6 +535,7 @@
                 `;
             });
 
+            // Tabla
             const tbody = document.getElementById('table-body');
             tbody.innerHTML = '';
             datos.plataformas.forEach(p => {
@@ -549,6 +550,7 @@
                 `;
             });
 
+            // Totales
             const total = datos.totalGeneral;
             tbody.innerHTML += `
                 <tr class="row-grand-total">
@@ -650,7 +652,6 @@
             const btn = document.getElementById('btn-actualizar-sheets');
             btn.disabled = true;
             btn.textContent = '⏳ Cargando...';
-            cargandoDesdeSheets = true;
 
             try {
                 const response = await fetch(GOOGLE_SHEETS_URL);
@@ -689,7 +690,6 @@
 
             btn.disabled = false;
             btn.textContent = '🔄 Google Sheets';
-            cargandoDesdeSheets = false;
         }
 
         // ============================================
@@ -737,10 +737,175 @@
         }
 
         // ============================================
-        // 9. EVENTOS Y CONFIGURACIÓN INICIAL
+        // 9. FUNCIONES DEL MODAL (CARGAR ARCHIVOS)
         // ============================================
-        document.addEventListener('DOMContentLoaded', () => {
-            renderizarDashboard(datosDashboard);
+        function abrirModal() {
+            document.getElementById('modal-cargar-datos').classList.add('active');
+        }
+
+        function cerrarModal() {
+            document.getElementById('modal-cargar-datos').classList.remove('active');
+            document.getElementById('preview-container').style.display = 'none';
+            document.getElementById('modal-apply').disabled = true;
+            document.getElementById('file-input').value = '';
+        }
+
+        function procesarArchivo(file) {
+            const extension = file.name.split('.').pop().toLowerCase();
+            if (!['csv', 'xlsx', 'xls'].includes(extension)) {
+                               alert('Formato no soportado. Usa .csv, .xlsx o .xls');
+                return;
+            }
+
+            const reader = new FileReader();
+
+            if (extension === 'csv') {
+                reader.onload = function(e) {
+                    const texto = e.target.result;
+                    const lineas = texto.split('\n').filter(l => l.trim() !== '');
+                    if (lineas.length < 2) {
+                        alert('CSV vacío o inválido');
+                        return;
+                    }
+                    
+                    const encabezados = lineas[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+                    const datos = [];
+                    for (let i = 1; i < lineas.length; i++) {
+                        const valores = lineas[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+                        const fila = {};
+                        encabezados.forEach((h, idx) => fila[h] = valores[idx] || '');
+                        datos.push(fila);
+                    }
+                    mostrarVistaPrevia(encabezados, datos);
+                    window.datosCargados = datos;
+                };
+                reader.readAsText(file);
+            } else {
+                // Excel
+                reader.onload = function(e) {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                    if (jsonData.length === 0) {
+                        alert('Excel vacío');
+                        return;
+                    }
+                    const encabezados = Object.keys(jsonData[0]);
+                    mostrarVistaPrevia(encabezados, jsonData);
+                    window.datosCargados = jsonData;
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        }
+
+        // ============================================
+        // 10. VISTA PREVIA DE ARCHIVOS
+        // ============================================
+        function mostrarVistaPrevia(encabezados, datos) {
+            const head = document.getElementById('preview-head');
+            const body = document.getElementById('preview-body');
+            const container = document.getElementById('preview-container');
             
-            // Botón Google Sheets
-            document.getElementById
+            head.innerHTML = '';
+            body.innerHTML = '';
+            
+            const trHead = document.createElement('tr');
+            encabezados.forEach(h => {
+                const th = document.createElement('th');
+                th.textContent = h;
+                trHead.appendChild(th);
+            });
+            head.appendChild(trHead);
+            
+            const max = Math.min(datos.length, 5);
+            for (let i = 0; i < max; i++) {
+                const tr = document.createElement('tr');
+                encabezados.forEach(h => {
+                    const td = document.createElement('td');
+                    td.textContent = datos[i][h] || '';
+                    tr.appendChild(td);
+                });
+                body.appendChild(tr);
+            }
+            
+            document.getElementById('row-count').textContent = datos.length;
+            container.style.display = 'block';
+            document.getElementById('modal-apply').disabled = false;
+        }
+
+        // ============================================
+        // 11. EVENTOS DEL MODAL
+        // ============================================
+        document.getElementById('btn-cargar-datos').addEventListener('click', abrirModal);
+        document.getElementById('modal-close').addEventListener('click', cerrarModal);
+        document.getElementById('modal-cancel').addEventListener('click', cerrarModal);
+
+        // Cerrar modal al hacer clic fuera del contenido
+        document.getElementById('modal-cargar-datos').addEventListener('click', function(e) {
+            if (e.target === this) cerrarModal();
+        });
+
+        // Drop zone
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--color-violeta)';
+            dropZone.style.background = '#ede9fe';
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.borderColor = '#cbd5e1';
+            dropZone.style.background = 'transparent';
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#cbd5e1';
+            dropZone.style.background = 'transparent';
+            if (e.dataTransfer.files.length > 0) {
+                procesarArchivo(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                procesarArchivo(e.target.files[0]);
+            }
+        });
+
+        // ============================================
+        // 12. APLICAR DATOS DESDE ARCHIVO
+        // ============================================
+        document.getElementById('modal-apply').addEventListener('click', function() {
+            if (window.datosCargados) {
+                actualizarDashboardConDatos(window.datosCargados, 'archivo');
+                cerrarModal();
+            }
+        });
+
+        // ============================================
+        // 13. EVENTOS DE FILTRO DE FECHAS
+        // ============================================
+        document.getElementById('aplicar-fechas').addEventListener('click', aplicarFiltroFechas);
+        document.getElementById('fecha-inicio').addEventListener('change', aplicarFiltroFechas);
+        document.getElementById('fecha-fin').addEventListener('change', aplicarFiltroFechas);
+
+        // ============================================
+        // 14. INICIAR DASHBOARD
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            renderizarDashboard(datosDashboard);
+            console.log('✅ Dashboard iniciado correctamente');
+            console.log('📊 Botón "Google Sheets" para cargar desde la nube');
+            console.log('📂 Botón "Cargar Datos" para subir archivos manuales');
+        });
+
+        console.log('✅ Todas las funciones cargadas correctamente');
+    </script>
+</body>
+</html>

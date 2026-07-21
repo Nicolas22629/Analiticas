@@ -51,12 +51,12 @@
             gap: 16px;
         }
 
-        /* NUEVO: Estilos para el logo con imagen y texto */
+        /* Estilos para el logo con ícono y texto */
         .logo-container {
             display: flex;
             align-items: center;
             gap: 12px;
-            d-color: rgba(251, 207, 232, 0.4);
+            background-color: rgba(251, 207, 232, 0.4);
             padding: 8px 20px 8px 16px;
             border-radius: 50px;
             border: 1px solid rgba(255, 255, 255, 0.6);
@@ -73,7 +73,7 @@
             width: 42px;
             height: 42px;
             border-radius: 12px;
-            d: var(--color-violeta);
+            background: var(--color-violeta);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -104,32 +104,6 @@
             text-transform: uppercase;
         }
 
-        /* Alternativa: Logo con imagen (descomentar y comentar el de arriba para usar) */
-        /*
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            d-color: rgba(251, 207, 232, 0.4);
-            padding: 8px 20px 8px 16px;
-            border-radius: 50px;
-            border: 1px solid rgba(255, 255, 255, 0.6);
-        }
-
-        .logo-img {
-            height: 40px;
-            width: auto;
-            object-fit: contain;
-            border-radius: 8px;
-        }
-
-        .logo-text-img {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--color-violeta);
-        }
-        */
-
         .filters-group {
             display: flex;
             gap: 12px;
@@ -137,7 +111,7 @@
         }
 
         .select-filter {
-            d-color: #ffffff;
+            background-color: #ffffff;
             border: 1px solid #cbd5e1;
             padding: 10px 16px;
             border-radius: 20px;
@@ -156,7 +130,7 @@
         }
 
         .kpi-card {
-            d-color: #ffffff;
+            background-color: #ffffff;
             border-radius: 16px;
             padding: 20px;
             display: flex;
@@ -174,7 +148,7 @@
 
         .kpi-tag {
             align-self: flex-start;
-            d-color: #ede9fe;
+            background-color: #ede9fe;
             color: var(--color-violeta);
             font-size: 0.75rem;
             font-weight: bold;
@@ -203,7 +177,7 @@
             gap: 4px;
         }
 
-        /* Gráficos de dona dinámicos mediante estilos en línea */
+        /* Gráficos de dona dinámicos - CORREGIDO */
         .donut-chart {
             width: 70px;
             height: 70px;
@@ -218,14 +192,14 @@
             content: '';
             width: 46px;
             height: 46px;
-            d-color: #ffffff;
+            background-color: #ffffff;
             border-radius: 50px;
             position: absolute;
         }
 
         /* 4. BLOQUE INFERIOR: MATRIZ DE RENDIMIENTO */
         .table-section {
-            d-color: #ffffff;
+            background-color: #ffffff;
             border-radius: 16px;
             padding: 8px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
@@ -241,7 +215,7 @@
         }
 
         .performance-table th {
-            d-color: #ffffff;
+            background-color: #ffffff;
             color: #1e293b;
             font-weight: 700;
             padding: 14px 16px;
@@ -264,15 +238,15 @@
             min-width: 140px;
         }
 
-        /* Clases de colores asignadas dinámicamente */
-        .bg-instagram { d-color: var(--color-magenta); }
-        .bg-linkedin { d-color: var(--color-azul-petroleo); }
-        .bg-facebook { d-color: var(--color-azul-francia); }
-        .bg-tiktok { d-color: var(--color-negro); }
+        /* Clases de colores asignadas dinámicamente - CORREGIDO */
+        .bg-instagram { background-color: var(--color-magenta); }
+        .bg-linkedin { background-color: var(--color-azul-petroleo); }
+        .bg-facebook { background-color: var(--color-azul-francia); }
+        .bg-tiktok { background-color: var(--color-negro); }
 
         .row-grand-total {
             font-weight: 700;
-            d-color: #ffffff;
+            background-color: #ffffff;
         }
 
         .row-grand-total td {
@@ -298,7 +272,7 @@
         }
 
         .btn-nav {
-            d: transparent;
+            background: transparent;
             border: none;
             color: #94a3b8;
             cursor: not-allowed;
@@ -313,7 +287,7 @@
         
         <!-- 2. FRANJA SUPERIOR: CONTROL Y FILTRADO -->
         <header class="header-controls">
-            <!-- NUEVO LOGO: Ícono + Texto -->
+            <!-- LOGO: Ícono + Texto -->
             <div class="logo-container">
                 <div class="logo-icon">📊</div>
                 <div class="logo-text">
@@ -321,7 +295,6 @@
                     <span class="sub">Dashboard</span>
                 </div>
             </div>
-            <!-- FIN NUEVO LOGO -->
 
             <div class="filters-group">
                 <select class="select-filter" id="filter-datasource">
@@ -430,7 +403,6 @@
         function inicializarDashboard(datos) {
             
             // A. Renderizar Encabezado y Filtros
-            // NOTA: El logo ahora es fijo en HTML, ya no se actualiza desde JS
             document.getElementById('filter-datasource').options[0].text = datos.configuracion.filtros.fuente;
             document.getElementById('filter-account').options[0].text = datos.configuracion.filtros.cuenta;
             document.getElementById('filter-date').options[0].text = datos.configuracion.filtros.periodo;
@@ -448,7 +420,7 @@
                             <span class="kpi-value">${kpi.valor}</span>
                             <span class="kpi-trend">▼ ${kpi.tendencia}</span>
                         </div>
-                        <div class="donut-chart" style="d: ${kpi.gradiente_cono}"></div>
+                        <div class="donut-chart" style="background: ${kpi.gradiente_cono}"></div>
                     </div>
                 `;
                 kpiContainer.innerHTML += tarjetaHtml;

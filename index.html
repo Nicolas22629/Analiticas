@@ -1,907 +1,390 @@
 <!DOCTYPE html>
 <html lang="es-419">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tablero de Control - Nico Hacker</title>
+
+    <title>Nico Hacker - Dashboard</title>
+
+    <!-- Librería Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <style>
-        /* ============================================
-           DISEÑO GLOBAL
-           ============================================ */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
 
-        body {
-            min-height: 100vh;
-            background: radial-gradient(circle at top left, #fbcfe8 0%, #ffffff 50%, #fef08a 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            color: #334155;
-        }
 
-        .dashboard-container {
-            width: 100%;
-            max-width: 1200px;
-            background: transparent;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
 
-        :root {
-            --color-magenta: #E1306C;
-            --color-azul-francia: #1877F2;
-            --color-azul-petroleo: #0A66C2;
-            --color-violeta: #7C3AED;
-            --color-negro: #000000;
-            --color-rojo-decremento: #EF4444;
-        }
-
-        /* ============================================
-           HEADER Y LOGO
-           ============================================ */
-        .header-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background-color: rgba(251, 207, 232, 0.4);
-            padding: 8px 20px 8px 16px;
-            border-radius: 50px;
-            border: 1px solid rgba(255, 255, 255, 0.6);
-        }
-
-        .logo-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: var(--color-violeta);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            color: white;
-        }
-
-        .logo-text .main {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--color-violeta);
-        }
-        .logo-text .sub {
-            font-size: 0.65rem;
-            font-weight: 400;
-            color: #94a3b8;
-            text-transform: uppercase;
-        }
-
-        /* ============================================
-           FILTROS
-           ============================================ */
-        .filters-group {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .select-filter,
-        .filter-date-wrapper {
-            background-color: #ffffff;
-            border: 1px solid #cbd5e1;
-            border-radius: 20px;
-            height: 42px;
-            display: flex;
-            align-items: center;
-        }
-
-        .select-filter {
-            padding: 10px 16px;
-            font-size: 0.85rem;
-            color: #475569;
-            cursor: pointer;
-            outline: none;
-            min-width: 180px;
-        }
-
-        .filter-date-wrapper {
-            padding: 4px 8px 4px 12px;
-            min-width: 320px;
-        }
-
-        .date-range-container {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            width: 100%;
-        }
-
-        .date-input {
-            padding: 4px 6px;
-            border: none;
-            outline: none;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            color: #475569;
-            width: 120px;
-            background: transparent;
-            cursor: pointer;
-        }
-
-        .date-arrow {
-            color: #94a3b8;
-        }
-
-        .btn-aplicar-fechas {
-            background: var(--color-violeta);
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 14px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 600;
-            height: 32px;
-            transition: background 0.3s;
-        }
-        .btn-aplicar-fechas:hover {
-            background: #6d28d9;
-        }
-
-        .btn-cargar-datos {
-            background: #10B981;
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 600;
-            height: 42px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: background 0.3s;
-        }
-        .btn-cargar-datos:hover {
-            background: #059669;
-        }
-
-        .btn-actualizar-sheets {
-            background: #3B82F6;
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 600;
-            height: 42px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: background 0.3s;
-        }
-        .btn-actualizar-sheets:hover {
-            background: #2563EB;
-        }
-        .btn-actualizar-sheets:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* ============================================
-           TARJETAS KPI
-           ============================================ */
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 16px;
-        }
-
-        .kpi-card {
-            background-color: #ffffff;
-            border-radius: 16px;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-        }
-
-        .kpi-info {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .kpi-tag {
-            align-self: flex-start;
-            background-color: #ede9fe;
-            color: var(--color-violeta);
-            font-size: 0.75rem;
-            font-weight: bold;
-            padding: 4px 12px;
-            border-radius: 50px;
-        }
-        .kpi-label {
-            font-size: 0.9rem;
-            color: #64748b;
-        }
-        .kpi-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #1e293b;
-        }
-        .kpi-trend {
-            font-size: 0.8rem;
-            color: var(--color-rojo-decremento);
-            font-weight: 600;
-        }
-
-        /* ============================================
-           GRÁFICOS DE DONA
-           ============================================ */
-        .donut-chart {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            flex-shrink: 0;
-        }
-        .donut-chart::after {
-            content: '';
-            width: 44px;
-            height: 44px;
-            background-color: #ffffff;
-            border-radius: 50%;
-            position: absolute;
-        }
-        .donut-1 { background: conic-gradient(var(--color-magenta) 0% 80%, var(--color-azul-francia) 80% 98%, var(--color-azul-petroleo) 98% 100%); }
-        .donut-2 { background: conic-gradient(var(--color-azul-francia) 0% 18%, var(--color-magenta) 18% 100%); }
-        .donut-3 { background: conic-gradient(var(--color-magenta) 0% 55%, var(--color-violeta) 55% 100%); }
-        .donut-4 { background: conic-gradient(var(--color-magenta) 0% 85%, var(--color-violeta) 85% 99%, var(--color-azul-francia) 99% 100%); }
-
-        /* ============================================
-           TABLA
-           ============================================ */
-        .table-section {
-            background-color: #ffffff;
-            border-radius: 16px;
-            padding: 8px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            overflow-x: auto;
-        }
-        .performance-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
-        .performance-table th { background-color: #f8fafc; color: #1e293b; font-weight: 700; padding: 14px 16px; border-bottom: 2px solid #e2e8f0; }
-        .performance-table td { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; color: #334155; }
-        .badge-platform { color: #ffffff; padding: 6px 12px; border-radius: 4px; font-weight: 600; display: inline-block; min-width: 140px; text-align: center; }
-        .bg-instagram { background-color: var(--color-magenta); }
-        .bg-linkedin { background-color: var(--color-azul-petroleo); }
-        .bg-facebook { background-color: var(--color-azul-francia); }
-        .bg-tiktok { background-color: var(--color-negro); }
-        .row-grand-total { font-weight: 700; background-color: #f8fafc; }
-        .row-grand-total td { border-top: 2px solid #e2e8f0; padding-top: 18px; color: #0f172a; }
-        .pagination-container { display: flex; justify-content: flex-end; align-items: center; gap: 12px; padding: 10px 16px; font-size: 0.85rem; color: #64748b; }
-
-        /* ============================================
-           MODAL PARA CARGAR ARCHIVOS
-           ============================================ */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-overlay.active { display: flex; }
-        .modal-content { background: white; border-radius: 20px; padding: 30px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-header h2 { color: #1e293b; font-size: 1.4rem; }
-        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #94a3b8; }
-        .drop-zone { border: 2px dashed #cbd5e1; border-radius: 16px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.3s ease; margin-bottom: 20px; }
-        .drop-zone:hover { border-color: var(--color-violeta); background: #f8fafc; }
-        .drop-zone-icon { font-size: 48px; margin-bottom: 12px; }
-        .drop-zone-text { color: #64748b; font-size: 0.95rem; }
-        .drop-zone-text strong { color: var(--color-violeta); }
-        .file-input-hidden { display: none; }
-        .preview-container { display: none; margin: 15px 0; }
-        .preview-table-container { max-height: 200px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; }
-        .preview-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-        .preview-table th { background: #f1f5f9; padding: 8px 12px; text-align: left; position: sticky; top: 0; }
-        .preview-table td { padding: 6px 12px; border-bottom: 1px solid #f1f5f9; }
-        .modal-actions { display: flex; gap: 12px; margin-top: 20px; }
-        .btn-modal-primary { background: var(--color-violeta); color: white; border: none; padding: 10px 24px; border-radius: 12px; cursor: pointer; font-weight: 600; flex: 1; }
-        .btn-modal-secondary { background: #e2e8f0; color: #475569; border: none; padding: 10px 24px; border-radius: 12px; cursor: pointer; font-weight: 600; flex: 1; }
-
-        /* ============================================
-           RESPONSIVE
-           ============================================ */
-        @media (max-width: 768px) {
-            .filters-group { flex-direction: column; width: 100%; }
-            .select-filter, .filter-date-wrapper { width: 100%; min-width: unset; }
-            .filter-date-wrapper { min-width: unset; }
-            .date-input { width: 100px; }
-            .kpi-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
-            .donut-chart { width: 56px; height: 56px; }
-            .donut-chart::after { width: 36px; height: 36px; }
-        }
-        @media (max-width: 480px) {
-            .kpi-grid { grid-template-columns: 1fr 1fr; }
-            .kpi-card { flex-direction: column; text-align: center; }
-            .kpi-tag { align-self: center; }
-            .btn-actualizar-sheets { font-size: 0.7rem; padding: 6px 12px; height: 34px; }
-        }
-    </style>
 </head>
+
+
 <body>
 
-    <div class="dashboard-container">
 
-        <!-- ============================================
-        HEADER
-        ============================================ -->
-        <header class="header-controls">
-            <div class="logo-container">
-                <div class="logo-icon">📊</div>
-                <div class="logo-text">
-                    <span class="main">Nico Hacker</span>
-                    <span class="sub">Dashboard</span>
-                </div>
+<div class="dashboard-container">
+
+
+    <!-- ==========================
+         HEADER
+    =========================== -->
+
+    <header class="header-controls">
+
+
+        <div class="logo-container">
+
+            <div class="logo-icon">
+                📊
             </div>
 
-            <div class="filters-group">
-                <select class="select-filter" id="filter-datasource">
-                    <option>Origen de datos combinado</option>
-                </select>
-                <select class="select-filter" id="filter-account">
-                    <option>Nombre de la cuenta combinada</option>
-                </select>
-                <div class="filter-date-wrapper">
-                    <div class="date-range-container">
-                        <input type="date" id="fecha-inicio" class="date-input" value="2024-01-01">
-                        <span class="date-arrow">→</span>
-                        <input type="date" id="fecha-fin" class="date-input" value="2024-12-31">
-                        <button id="aplicar-fechas" class="btn-aplicar-fechas">Aplicar</button>
-                    </div>
-                </div>
-                <button id="btn-actualizar-sheets" class="btn-actualizar-sheets">🔄 Google Sheets</button>
-                <button id="btn-cargar-datos" class="btn-cargar-datos">📂 Cargar Datos</button>
-            </div>
-        </header>
 
-        <!-- ============================================
-        KPIs
-        ============================================ -->
-        <section class="kpi-grid" id="kpi-container"></section>
+            <div class="logo-text">
 
-        <!-- ============================================
-        TABLA
-        ============================================ -->
-        <section class="table-section">
-            <table class="performance-table">
-                <thead>
-                    <tr>
-                        <th>Origen de datos combinado</th>
-                        <th>Seguidores totales</th>
-                        <th>Nuevos seguidores</th>
-                        <th>Compartidos</th>
-                        <th>Impresiones</th>
-                    </tr>
-                </thead>
-                <tbody id="table-body"></tbody>
-            </table>
-            <div class="pagination-container">
-                <span id="pagination-info">1-4 / 4</span>
-                <div class="pagination-nav">
-                    <button class="btn-nav">&lt;</button>
-                    <button class="btn-nav">&gt;</button>
-                </div>
-            </div>
-        </section>
+                <span class="main">
+                    Nico Hacker
+                </span>
 
-    </div>
-    <!-- ============================================
-    MODAL PARA CARGAR ARCHIVOS (HTML)
-    ============================================ -->
-    <div class="modal-overlay" id="modal-cargar-datos">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>📂 Cargar Datos</h2>
-                <button class="modal-close" id="modal-close">&times;</button>
+                <span class="sub">
+                    Dashboard
+                </span>
+
             </div>
-            <div class="drop-zone" id="drop-zone">
-                <div class="drop-zone-icon">📁</div>
-                <div class="drop-zone-text">
-                    <strong>Haz clic o arrastra</strong> un archivo CSV o Excel aquí
-                </div>
-                <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 8px;">
-                    Formatos: .csv, .xlsx, .xls
-                </div>
-            </div>
-            <input type="file" id="file-input" class="file-input-hidden" accept=".csv,.xlsx,.xls">
-            <div class="preview-container" id="preview-container">
-                <h4 style="margin-bottom: 8px; color: #1e293b;">Vista previa:</h4>
-                <div class="preview-table-container">
-                    <table class="preview-table">
-                        <thead id="preview-head"></thead>
-                        <tbody id="preview-body"></tbody>
-                    </table>
-                </div>
-                <div style="font-size: 0.8rem; color: #64748b; margin: 8px 0;">
-                    <span id="row-count">0</span> filas cargadas
-                </div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn-modal-secondary" id="modal-cancel">Cancelar</button>
-                <button class="btn-modal-primary" id="modal-apply" disabled>Aplicar Datos</button>
-            </div>
+
+
         </div>
-    </div>
 
-    <script>
-        // ============================================
-        // CONFIGURACIÓN DE GOOGLE SHEETS
-        // ============================================
-        // ⚠️ REEMPLAZA ESTE ENLACE CON EL QUE GENERES EN GOOGLE SHEETS
-        const GOOGLE_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQF7Mmow2YIBf82Y7MTvsfcHJjJYpoTxlFDGHhkAE1PivJfT9lldq1b7WWURrRdA3qhdXm1d6Hzf9LA/pub?output=csv';
-        
-        // ============================================
-        // DATOS DE EJEMPLO (FALLBACK)
-        // ============================================
-        let datosDashboard = {
-            kpis: [
-                { categoria: "Seguidores", etiqueta: "Seguidores totales", valor: "42.6K", tendencia: "-2.7%" },
-                { categoria: "Seguidores", etiqueta: "Nuevos seguidores", valor: "5K", tendencia: "-45.4%" },
-                { categoria: "Interacción", etiqueta: "Reacciones", valor: "52K", tendencia: "-8.0%" },
-                { categoria: "Visibilidad", etiqueta: "Impresiones", valor: "846K", tendencia: "-37.0%" }
-            ],
-            plataformas: [
-                { nombre: "Instagram Insights", clase: "bg-instagram", totales: "33.9K", nuevos: "767", compartidos: "270", impresiones: "108K" },
-                { nombre: "LinkedIn Pages", clase: "bg-linkedin", totales: "7.6K", nuevos: "1.1K", compartidos: "3", impresiones: "11.4K" },
-                { nombre: "Facebook Insights", clase: "bg-facebook", totales: "1.1K", nuevos: "4", compartidos: "0", impresiones: "735" },
-                { nombre: "TikTok", clase: "bg-tiktok", totales: "0", nuevos: "0", compartidos: "0", impresiones: "0" }
-            ],
-            totalGeneral: { totales: "42.5K", nuevos: "1.8K", compartidos: "273", impresiones: "120.1K" }
-        };
 
-        let datosOriginales = [];
 
-        // ============================================
-        // FUNCIONES DE UTILIDAD
-        // ============================================
-        function formatearNumero(num) {
-            if (num === 0 || isNaN(num)) return '0';
-            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-            return num.toString();
-        }
+        <div class="filters-group">
 
-        function mostrarNotificacion(mensaje, tipo = 'success') {
-            const colores = { success: '#10B981', error: '#EF4444', warning: '#F59E0B', info: '#3B82F6' };
-            let notif = document.getElementById('notif');
-            if (!notif) {
-                notif = document.createElement('div');
-                notif.id = 'notif';
-                notif.style.cssText = `
-                    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-                    padding: 12px 24px; border-radius: 12px;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 2000;
-                    opacity: 0; transition: opacity 0.3s; text-align: center;
-                    color: white; font-weight: 500; max-width: 90%;
-                `;
-                document.body.appendChild(notif);
-            }
-            notif.style.background = colores[tipo] || colores.success;
-            notif.textContent = mensaje;
-            notif.style.opacity = '1';
-            clearTimeout(window.notifTimeout);
-            window.notifTimeout = setTimeout(() => notif.style.opacity = '0', 4000);
-        }
 
-        // ============================================
-        // RENDERIZAR DASHBOARD
-        // ============================================
-        function renderizarDashboard(datos) {
-            const container = document.getElementById('kpi-container');
-            container.innerHTML = '';
-            const clases = ['donut-1', 'donut-2', 'donut-3', 'donut-4'];
-            
-            datos.kpis.forEach((kpi, i) => {
-                container.innerHTML += `
-                    <div class="kpi-card">
-                        <div class="kpi-info">
-                            <span class="kpi-tag">${kpi.categoria}</span>
-                            <span class="kpi-label">${kpi.etiqueta}</span>
-                            <span class="kpi-value">${kpi.valor}</span>
-                            <span class="kpi-trend">▼ ${kpi.tendencia}</span>
-                        </div>
-                        <div class="donut-chart ${clases[i]}"></div>
-                    </div>
-                `;
-            });
+            <select 
+                id="filter-datasource"
+                class="select-filter">
 
-            const tbody = document.getElementById('table-body');
-            tbody.innerHTML = '';
-            datos.plataformas.forEach(p => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td><span class="badge-platform ${p.clase}">${p.nombre}</span></td>
-                        <td>${p.totales}</td>
-                        <td>${p.nuevos}</td>
-                        <td>${p.compartidos}</td>
-                        <td>${p.impresiones}</td>
-                    </tr>
-                `;
-            });
+                <option>
+                    Origen de datos combinado
+                </option>
 
-            const total = datos.totalGeneral;
-            tbody.innerHTML += `
-                <tr class="row-grand-total">
-                    <td>Total general</td>
-                    <td>${total.totales}</td>
-                    <td>${total.nuevos}</td>
-                    <td>${total.compartidos}</td>
-                    <td>${total.impresiones}</td>
+            </select>
+
+
+
+            <select 
+                id="filter-account"
+                class="select-filter">
+
+                <option>
+                    Cuenta combinada
+                </option>
+
+            </select>
+
+
+
+
+            <div class="filter-date-wrapper">
+
+
+                <input 
+                    type="date"
+                    id="fecha-inicio"
+                    class="date-input">
+
+
+                <span>
+                    →
+                </span>
+
+
+                <input 
+                    type="date"
+                    id="fecha-fin"
+                    class="date-input">
+
+
+
+                <button 
+                    id="aplicar-fechas"
+                    class="btn-aplicar-fechas">
+
+                    Aplicar
+
+                </button>
+
+
+            </div>
+
+
+
+
+
+            <button
+                id="btn-actualizar-sheets"
+                class="btn-actualizar-sheets">
+
+                🔄 Google Sheets
+
+            </button>
+
+
+
+
+            <button
+                id="btn-cargar-datos"
+                class="btn-cargar-datos">
+
+                📂 Cargar Datos
+
+            </button>
+
+
+
+        </div>
+
+
+    </header>
+
+
+
+
+
+
+    <!-- ==========================
+         KPIs
+    =========================== -->
+
+
+    <section 
+        id="kpi-container"
+        class="kpi-grid">
+
+    </section>
+
+
+
+
+
+
+
+
+    <!-- ==========================
+         TABLA
+    =========================== -->
+
+
+    <section class="table-section">
+
+
+        <table class="performance-table">
+
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Plataforma
+                    </th>
+
+
+                    <th>
+                        Seguidores totales
+                    </th>
+
+
+                    <th>
+                        Nuevos seguidores
+                    </th>
+
+
+                    <th>
+                        Compartidos
+                    </th>
+
+
+                    <th>
+                        Impresiones
+                    </th>
+
+
                 </tr>
-            `;
-            document.getElementById('pagination-info').textContent = `1-${datos.plataformas.length} / ${datos.plataformas.length}`;
-        }
 
-        // ============================================
-        // PROCESAR DATOS CRUDOS
-        // ============================================
-        function procesarDatosCrudos(datosRaw) {
-            if (!datosRaw || datosRaw.length === 0) {
-                mostrarNotificacion('⚠️ No hay datos para procesar', 'warning');
-                return null;
-            }
 
-            const columnas = Object.keys(datosRaw[0]);
-            const colPlataforma = columnas.find(c => /plataforma|red|nombre|channel/i.test(c)) || columnas[0];
-            const colSeguidores = columnas.find(c => /seguidores totales|totales|followers/i.test(c)) || columnas[1];
-            const colNuevos = columnas.find(c => /nuevos|new followers/i.test(c)) || columnas[2];
-            const colCompartidos = columnas.find(c => /compartidos|shares|post shares/i.test(c)) || columnas[3];
-            const colImpresiones = columnas.find(c => /impresiones|impressions|vistas/i.test(c)) || columnas[4];
+            </thead>
 
-            const plataformas = [];
-            let totalSeg = 0, totalNue = 0, totalComp = 0, totalImp = 0;
 
-            datosRaw.forEach(fila => {
-                const nombre = String(fila[colPlataforma] || 'Sin nombre').trim();
-                const seg = parseFloat(String(fila[colSeguidores] || '0').replace(/[,.]/g, '')) || 0;
-                const nue = parseFloat(String(fila[colNuevos] || '0').replace(/[,.]/g, '')) || 0;
-                const comp = parseFloat(String(fila[colCompartidos] || '0').replace(/[,.]/g, '')) || 0;
-                const imp = parseFloat(String(fila[colImpresiones] || '0').replace(/[,.]/g, '')) || 0;
 
-                let clase = 'bg-instagram';
-                const nLower = nombre.toLowerCase();
-                if (nLower.includes('linkedin')) clase = 'bg-linkedin';
-                else if (nLower.includes('facebook')) clase = 'bg-facebook';
-                else if (nLower.includes('tiktok')) clase = 'bg-tiktok';
+            <tbody id="table-body">
 
-                plataformas.push({
-                    nombre, clase,
-                    totales: formatearNumero(seg),
-                    nuevos: formatearNumero(nue),
-                    compartidos: formatearNumero(comp),
-                    impresiones: formatearNumero(imp)
-                });
 
-                totalSeg += seg;
-                totalNue += nue;
-                totalComp += comp;
-                totalImp += imp;
-            });
+            </tbody>
 
-            datosOriginales = datosRaw;
 
-            return {
-                kpis: [
-                    { categoria: "Seguidores", etiqueta: "Seguidores totales", valor: formatearNumero(totalSeg), tendencia: "0%" },
-                    { categoria: "Seguidores", etiqueta: "Nuevos seguidores", valor: formatearNumero(totalNue), tendencia: "0%" },
-                    { categoria: "Interacción", etiqueta: "Reacciones", valor: formatearNumero(Math.round(totalSeg * 0.12)), tendencia: "0%" },
-                    { categoria: "Visibilidad", etiqueta: "Impresiones", valor: formatearNumero(totalImp), tendencia: "0%" }
-                ],
-                plataformas: plataformas,
-                totalGeneral: {
-                    totales: formatearNumero(totalSeg),
-                    nuevos: formatearNumero(totalNue),
-                    compartidos: formatearNumero(totalComp),
-                    impresiones: formatearNumero(totalImp)
-                }
-            };
-        }
 
-        // ============================================
-        // ACTUALIZAR DASHBOARD
-        // ============================================
-        function actualizarDashboardConDatos(datosRaw, fuente = 'archivo') {
-            const datosProcesados = procesarDatosCrudos(datosRaw);
-            if (!datosProcesados) return;
-            datosDashboard = datosProcesados;
-            renderizarDashboard(datosDashboard);
-            const mensajes = {
-                'archivo': '✅ Datos actualizados desde archivo',
-                'sheets': '✅ Datos actualizados desde Google Sheets',
-                'filtro': '📅 Datos filtrados por fecha'
-            };
-            mostrarNotificacion(mensajes[fuente] || '✅ Datos actualizados');
-        }
+        </table>
 
-        // ============================================
-        // CARGAR DESDE GOOGLE SHEETS
-        // ============================================
-        async function cargarDesdeGoogleSheets() {
-            const btn = document.getElementById('btn-actualizar-sheets');
-            btn.disabled = true;
-            btn.textContent = '⏳ Cargando...';
 
-            try {
-                const response = await fetch(GOOGLE_SHEETS_URL);
-                if (!response.ok) throw new Error('Error al conectar con Google Sheets');
-                
-                const csvText = await response.text();
-                const lineas = csvText.split('\n').filter(l => l.trim() !== '');
-                
-                if (lineas.length < 2) {
-                    throw new Error('El archivo está vacío o tiene formato inválido');
-                }
+    </section>
 
-                const encabezados = lineas[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-                const datos = [];
 
-                for (let i = 1; i < lineas.length; i++) {
-                    const valores = lineas[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
-                    const fila = {};
-                    encabezados.forEach((h, idx) => {
-                        fila[h] = valores[idx] || '';
-                    });
-                    datos.push(fila);
-                }
 
-                if (datos.length === 0) {
-                    throw new Error('No se encontraron datos en el archivo');
-                }
 
-                actualizarDashboardConDatos(datos, 'sheets');
-                
-            } catch (error) {
-                console.error('Error en Google Sheets:', error);
-                mostrarNotificacion('❌ Error al cargar datos: ' + error.message, 'error');
-                renderizarDashboard(datosDashboard);
-            }
 
-            btn.disabled = false;
-            btn.textContent = '🔄 Google Sheets';
-        }
 
-        // ============================================
-        // FILTRO POR FECHAS
-        // ============================================
-        function aplicarFiltroFechas() {
-            const fechaInicio = document.getElementById('fecha-inicio').value;
-            const fechaFin = document.getElementById('fecha-fin').value;
+</div>
 
-            if (!fechaInicio || !fechaFin) {
-                mostrarNotificacion('⚠️ Selecciona un rango de fechas válido', 'warning');
-                return;
-            }
 
-            if (!datosOriginales || datosOriginales.length === 0) {
-                mostrarNotificacion('⚠️ Primero carga datos (archivo o Google Sheets)', 'warning');
-                return;
-            }
 
-            const columnas = Object.keys(datosOriginales[0]);
-            const colFecha = columnas.find(c => /fecha|date/i.test(c));
 
-            if (!colFecha) {
-                mostrarNotificacion('⚠️ No se encontró columna "Fecha" en los datos', 'warning');
-                return;
-            }
 
-            const inicio = new Date(fechaInicio);
-            const fin = new Date(fechaFin);
-            inicio.setHours(0, 0, 0, 0);
-            fin.setHours(23, 59, 59, 999);
 
-            const datosFiltrados = datosOriginales.filter(fila => {
-                if (!fila[colFecha]) return true;
-                const fechaFila = new Date(fila[colFecha]);
-                return fechaFila >= inicio && fechaFila <= fin;
-            });
 
-            if (datosFiltrados.length === 0) {
-                mostrarNotificacion('⚠️ No hay datos para el rango de fechas seleccionado', 'warning');
-                return;
-            }
+<!-- ==========================
+     MODAL CARGA ARCHIVOS
+=========================== -->
 
-            actualizarDashboardConDatos(datosFiltrados, 'filtro');
-        }
 
-        // ============================================
-        // FUNCIONES DEL MODAL (CARGAR ARCHIVOS)
-        // ============================================
-        function abrirModal() {
-            document.getElementById('modal-cargar-datos').classList.add('active');
-        }
+<div 
+class="modal-overlay"
+id="modal-cargar-datos">
 
-        function cerrarModal() {
-            document.getElementById('modal-cargar-datos').classList.remove('active');
-            document.getElementById('preview-container').style.display = 'none';
-            document.getElementById('modal-apply').disabled = true;
-            document.getElementById('file-input').value = '';
-        }
 
-        function procesarArchivo(file) {
-            const extension = file.name.split('.').pop().toLowerCase();
-            if (!['csv', 'xlsx', 'xls'].includes(extension)) {
-                alert('Formato no soportado. Usa .csv, .xlsx o .xls');
-                return;
-            }
 
-            const reader = new FileReader();
+<div class="modal-content">
 
-            if (extension === 'csv') {
-                reader.onload = function(e) {
-                    const texto = e.target.result;
-                    const lineas = texto.split('\n').filter(l => l.trim() !== '');
-                    if (lineas.length < 2) {
-                        alert('CSV vacío o inválido');
-                        return;
-                    }
-                    
-                    const encabezados = lineas[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-                    const datos = [];
-                    for (let i = 1; i < lineas.length; i++) {
-                        const valores = lineas[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
-                        const fila = {};
-                        encabezados.forEach((h, idx) => fila[h] = valores[idx] || '');
-                        datos.push(fila);
-                    }
-                    mostrarVistaPrevia(encabezados, datos);
-                    window.datosCargados = datos;
-                };
-                reader.readAsText(file);
-            } else {
-                // Excel
-                reader.onload = function(e) {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-                    if (jsonData.length === 0) {
-                        alert('Excel vacío');
-                        return;
-                    }
-                    const encabezados = Object.keys(jsonData[0]);
-                    mostrarVistaPrevia(encabezados, jsonData);
-                    window.datosCargados = jsonData;
-                };
-                reader.readAsArrayBuffer(file);
-            }
-        }
 
-        // ============================================
-        // VISTA PREVIA DE ARCHIVOS
-        // ============================================
-        function mostrarVistaPrevia(encabezados, datos) {
-            const head = document.getElementById('preview-head');
-            const body = document.getElementById('preview-body');
-            const container = document.getElementById('preview-container');
-            
-            head.innerHTML = '';
-            body.innerHTML = '';
-            
-            const trHead = document.createElement('tr');
-            encabezados.forEach(h => {
-                const th = document.createElement('th');
-                th.textContent = h;
-                trHead.appendChild(th);
-            });
-            head.appendChild(trHead);
-            
-            const max = Math.min(datos.length, 5);
-            for (let i = 0; i < max; i++) {
-                const tr = document.createElement('tr');
-                encabezados.forEach(h => {
-                    const td = document.createElement('td');
-                    td.textContent = datos[i][h] || '';
-                    tr.appendChild(td);
-                });
-                body.appendChild(tr);
-            }
-            
-            document.getElementById('row-count').textContent = datos.length;
-            container.style.display = 'block';
-            document.getElementById('modal-apply').disabled = false;
-        }
 
-        // ============================================
-        // EVENTOS DEL MODAL
-        // ============================================
-        document.getElementById('btn-cargar-datos').addEventListener('click', abrirModal);
-        document.getElementById('modal-close').addEventListener('click', cerrarModal);
-        document.getElementById('modal-cancel').addEventListener('click', cerrarModal);
+<h2>
+📂 Cargar Datos
+</h2>
 
-        // Cerrar modal al hacer clic fuera
-        document.getElementById('modal-cargar-datos').addEventListener('click', function(e) {
-            if (e.target === this) cerrarModal();
-        });
 
-        // Drop zone
-        const dropZone = document.getElementById('drop-zone');
-        const fileInput = document.getElementById('file-input');
 
-        dropZone.addEventListener('click', () => fileInput.click());
 
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.style.borderColor = 'var(--color-violeta)';
-            dropZone.style.background = '#ede9fe';
-        });
+<div 
+id="drop-zone"
+class="drop-zone">
 
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.style.borderColor = '#cbd5e1';
-            dropZone.style.background = 'transparent';
-        });
 
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.style.borderColor = '#cbd5e1';
-            dropZone.style.background = 'transparent';
-            if (e.dataTransfer.files.length > 0) {
-                procesarArchivo(e.dataTransfer.files[0]);
-            }
-        });
+<p>
+Arrastra un archivo aquí
+</p>
 
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                procesarArchivo(e.target.files[0]);
-            }
-        });
 
-        // ============================================
-        // APLICAR DATOS DESDE ARCHIVO
-        // ============================================
-        document.getElementById('modal-apply').addEventListener('click', function() {
-            if (window.datosCargados) {
-                actualizarDashboardConDatos(window.datosCargados, 'archivo');
-                cerrarModal();
-            }
-        });
+<p>
+o haz clic para seleccionar
+</p>
 
-        // ============================================
-        // EVENTOS DE FILTRO DE FECHAS
-        // ============================================
-        document.getElementById('aplicar-fechas').addEventListener('click', aplicarFiltroFechas);
-        document.getElementById('fecha-inicio').addEventListener('change', aplicarFiltroFechas);
-        document.getElementById('fecha-fin').addEventListener('change', aplicarFiltroFechas);
 
-        // ============================================
-        // INICIAR DASHBOARD
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            renderizarDashboard(datosDashboard);
-            console.log('✅ Dashboard iniciado correctamente');
-            console.log('📊 Botón "Google Sheets" para cargar desde la nube');
-            console.log('📂 Botón "Cargar Datos" para subir archivos manuales');
-        });
+</div>
 
-        console.log('✅ Todas las funciones cargadas correctamente');
-    </script>
+
+
+<input
+type="file"
+id="file-input"
+accept=".csv,.xlsx,.xls"
+hidden>
+
+
+
+
+<div 
+id="preview-container"
+class="preview-container">
+
+
+<table class="preview-table">
+
+<thead id="preview-head"></thead>
+
+<tbody id="preview-body"></tbody>
+
+
+</table>
+
+
+</div>
+
+
+
+
+<div class="modal-actions">
+
+
+<button
+id="modal-cancel"
+class="btn-modal-secondary">
+
+Cancelar
+
+</button>
+
+
+
+<button
+id="modal-apply"
+class="btn-modal-primary"
+disabled>
+
+Aplicar
+
+</button>
+
+
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- ==========================
+     JAVASCRIPT MODULAR
+=========================== -->
+
+
+<script src="js/config.js"></script>
+
+<script src="js/utils.js"></script>
+
+<script src="js/parser.js"></script>
+
+
+<script src="js/dataLoader.js"></script>
+
+<script src="js/dataProcessor.js"></script>
+
+
+<script src="js/googleSheets.js"></script>
+
+
+<script src="js/renderer.js"></script>
+
+<script src="js/filters.js"></script>
+
+
+<script src="js/modal.js"></script>
+
+<script src="js/events.js"></script>
+
+
+<script src="js/app.js"></script>
+
+
+
+
 </body>
+
 </html>
